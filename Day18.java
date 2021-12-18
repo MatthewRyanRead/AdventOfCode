@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class Day18 {
     public static void main(final String[] args) throws Exception {
         final List<String> input = new ArrayList<>();
@@ -19,7 +18,7 @@ public class Day18 {
         final List<SnailNumber> snailNumbers =
                 input.stream().map(i -> parseSnailNumber(i).result).collect(Collectors.toList());
 
-        snailNumbers.forEach(sn -> System.out.println(sn));
+        snailNumbers.forEach(System.out::println);
     }
 
     private static ParseKey parseSnailNumber(String input) {
@@ -73,6 +72,10 @@ public class Day18 {
 
     private interface SnailNumber {
         long getMagnitude();
+
+        SnailNumber split(final int depth);
+
+        SnailNumber explode(final int depth);
     }
 
     private static class Atom implements SnailNumber {
@@ -88,10 +91,38 @@ public class Day18 {
         }
 
         @Override
+        public SnailNumber explode(final int depth) {
+            return this;
+        }
+
+        @Override
+        public SnailNumber split(final int depth) {
+            if (value <= 9) return this;
+
+            SnailNumber nextMe = new Pair(new Atom(value / 2), new Atom(value / 2 + (value % 2)));
+            SnailNumber newMe;
+            do {
+                do {
+                    newMe = nextMe;
+                    nextMe = newMe.explode(depth);
+                } while (nextMe != newMe);
+
+                newMe = nextMe;
+                nextMe = newMe.split(depth);
+            } while (nextMe != newMe);
+
+            return newMe;
+        }
+
+        @Override
         public String toString() {
             return Long.toString(value);
         }
     }
+
+    // TODO: merge classes, pass in a "call stack", propagate an explode up the stack, set this.type
+    // TODO: to PRUNE_ME, abort?
+    // TODO: alternatively, maintain L -> R linkedlist
 
     private static class Pair implements SnailNumber {
         private SnailNumber left;
@@ -105,6 +136,23 @@ public class Day18 {
         @Override
         public long getMagnitude() {
             return 3 * left.getMagnitude() + 2 * right.getMagnitude();
+        }
+
+        @Override
+        public SnailNumber split(final int depth) {
+            this.left = left.split(depth + 1);
+            this.right = right.split(depth + 1);
+
+            return this;
+        }
+
+        @Override
+        public SnailNumber explode(final int depth) {
+            if (depth > 4) throw new IllegalStateException();
+
+            if (depth < 4) {
+                this.left = left.explode(depth + 1);
+            }
         }
 
         @Override
