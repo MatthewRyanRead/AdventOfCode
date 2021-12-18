@@ -19,126 +19,55 @@ public class Day18 {
             }
         }
 
-        final LinkedList<SnailNumber> snailNumbers =
-                input.stream()
-                        .map(i -> parseSnailNumber(i, 0).result)
-                        .collect(Collectors.toCollection(LinkedList::new));
-        final LinkedList<LinkedList<SnailNumber>> atomsLToR =
+        part1(input);
+        part2(input);
+    }
+
+    private static void part1(final List<String> input) {
+        final LinkedList<SnailNumber> snailNumbers = parseSnailNumbers(input);
+        final LinkedList<LinkedList<SnailNumber>> atomsLToR1 =
                 snailNumbers.stream()
                         .map(sn -> sn.dfs(new LinkedList<>()))
                         .collect(Collectors.toCollection(LinkedList::new));
 
-        while (snailNumbers.size() > 1) {
-            final SnailNumber toAddLeft = snailNumbers.remove(0);
-            toAddLeft.incrementDepth();
-            final SnailNumber toAddRight = snailNumbers.remove(0);
-            toAddRight.incrementDepth();
+        final SnailNumber result = doSnailAddition(snailNumbers, atomsLToR1);
+        System.out.println("Part 1: " + result.getMagnitude());
+    }
 
-            final SnailNumber added = new SnailNumber(toAddLeft, toAddRight, 0);
-            toAddLeft.parent = added;
-            toAddRight.parent = added;
-            snailNumbers.add(0, added);
+    private static void part2(final List<String> input) {
+        final LinkedList<SnailNumber> snailNumbers = parseSnailNumbers(input);
 
-            LinkedList<SnailNumber> lToR = atomsLToR.get(0);
-            final LinkedList<SnailNumber> newRightHalf = atomsLToR.remove(1);
-            lToR.addAll(newRightHalf);
+        SnailNumber maxNum = new SnailNumber(-1, 0);
+        for (int i = 0; i < snailNumbers.size(); i++) {
+            for (int j = i + 1; j < snailNumbers.size(); j++) {
+                final SnailNumber numI = snailNumbers.get(i);
+                final SnailNumber numJ = snailNumbers.get(j);
 
-            boolean changed;
-            do {
-                changed = false;
-                LinkedList<SnailNumber> newOrder = new LinkedList<>();
-
-                for (int i = 0; i < lToR.size(); i++) {
-                    SnailNumber num = lToR.get(i);
-
-                    if (num.depth >= 6) {
-                        throw new IllegalStateException();
-                    }
-                    if (num.depth < 5) {
-                        newOrder.add(num);
-                        continue;
-                    }
-
-                    changed = true;
-
-                    final SnailNumber toExplode = num.parent;
-                    if (toExplode == null || toExplode.parent == null) {
-                        throw new IllegalStateException();
-                    }
-
-                    final SnailNumber toAdd = new SnailNumber(0, toExplode.depth);
-                    toAdd.parent = toExplode.parent;
-                    if (toAdd.parent.left == toExplode) {
-                        toAdd.parent.left = toAdd;
-                    } else {
-                        toAdd.parent.right = toAdd;
-                    }
-
-                    if (i > 0 && !newOrder.isEmpty()) {
-                        SnailNumber prev = newOrder.get(newOrder.size() - 1);
-                        if (prev == toExplode.left) {
-                            newOrder.pop();
-                            if (!newOrder.isEmpty()) {
-                                prev = newOrder.get(newOrder.size() - 1);
-                            } else {
-                                prev = null;
-                            }
-                        }
-
-                        if (prev != null) {
-                            prev.value += toExplode.left.value;
-                        }
-                    }
-                    if (i < lToR.size() - 1) {
-                        int offset = 1;
-                        SnailNumber next = lToR.get(i + offset);
-                        if (next == toExplode.right) {
-                            if (i < lToR.size() - 2) {
-                                next = lToR.get(i + ++offset);
-                            } else {
-                                next = null;
-                            }
-                        }
-
-                        if (next != null) {
-                            next.value += toExplode.right.value;
-                        }
-                    }
-
-                    newOrder.add(toAdd);
-                    // we ran into the left atom first; skip the right one
-                    i++;
+                // i then j
+                SnailNumber result = doSnailAddition(numI.clone(), numJ.clone());
+                if (result.getMagnitude() > maxNum.getMagnitude()) {
+                    maxNum = result;
                 }
 
-                lToR = newOrder;
-                newOrder = new LinkedList<>();
-
-                for (int i = 0; i < lToR.size(); i++) {
-                    final SnailNumber num = lToR.get(i);
-                    if (num.splitMe()) {
-                        changed = true;
-                        newOrder.add(num.left);
-                        newOrder.add(num.right);
-
-                        newOrder.addAll(lToR.subList(i + 1, lToR.size()));
-
-                        break;
-                    }
-
-                    newOrder.add(num);
+                // j then i
+                result = doSnailAddition(numJ.clone(), numI.clone());
+                if (result.getMagnitude() > maxNum.getMagnitude()) {
+                    maxNum = result;
                 }
-
-                lToR = newOrder;
-            } while (changed);
-
-            atomsLToR.set(0, lToR);
+            }
         }
 
-        System.out.println("Part 1: " + snailNumbers.get(0).getMagnitude());
+        System.out.println("Part 2: " + maxNum.getMagnitude());
+    }
+
+    private static LinkedList<SnailNumber> parseSnailNumbers(final List<String> input) {
+        return input.stream()
+                .map(i -> parseSnailNumber(i, 0).result)
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     private static ParseKey parseSnailNumber(String input, final int depth) {
-        String nextChar = input.substring(0, 1);
+        final String nextChar = input.substring(0, 1);
         input = input.substring(1);
 
         final SnailNumber number;
@@ -149,10 +78,6 @@ public class Day18 {
             input = nextResult.remainder;
 
             if (input.isEmpty()) {
-                if (left.type != ATOM) {
-                    throw new IllegalStateException();
-                }
-
                 return new ParseKey(left, input);
             }
 
@@ -188,7 +113,123 @@ public class Day18 {
         return input;
     }
 
-    static class SnailNumber {
+    private static SnailNumber doSnailAddition(
+            final SnailNumber firstNum, final SnailNumber secondNum) {
+        final LinkedList<SnailNumber> kyloRenEtc = firstNum.dfs(new LinkedList<>());
+        final LinkedList<SnailNumber> secondOrder = secondNum.dfs(new LinkedList<>());
+
+        final LinkedList<SnailNumber> toAdd = new LinkedList<>();
+        toAdd.add(firstNum);
+        toAdd.add(secondNum);
+        final LinkedList<LinkedList<SnailNumber>> orders = new LinkedList<>();
+        orders.add(kyloRenEtc);
+        orders.add(secondOrder);
+
+        return doSnailAddition(toAdd, orders);
+    }
+
+    private static SnailNumber doSnailAddition(
+            final LinkedList<SnailNumber> snailNumbersToAdd,
+            final LinkedList<LinkedList<SnailNumber>> atomsLToR) {
+        while (snailNumbersToAdd.size() > 1) {
+            final SnailNumber toAddLeft = snailNumbersToAdd.remove(0);
+            toAddLeft.incrementDepth();
+            final SnailNumber toAddRight = snailNumbersToAdd.remove(0);
+            toAddRight.incrementDepth();
+
+            final SnailNumber added = new SnailNumber(toAddLeft, toAddRight, 0);
+            toAddLeft.parent = added;
+            toAddRight.parent = added;
+            snailNumbersToAdd.add(0, added);
+
+            LinkedList<SnailNumber> order = atomsLToR.get(0);
+            final LinkedList<SnailNumber> newRightHalf = atomsLToR.remove(1);
+            order.addAll(newRightHalf);
+
+            atomsLToR.set(0, reduceSnailNumber(order));
+        }
+
+        return snailNumbersToAdd.get(0);
+    }
+
+    private static LinkedList<SnailNumber> reduceSnailNumber(final LinkedList<SnailNumber> order) {
+        boolean changed;
+        do {
+            LinkedList<SnailNumber> intermediateOrder = new LinkedList<>();
+            changed = explode(order, intermediateOrder);
+
+            order.clear();
+
+            changed |= split(intermediateOrder, order);
+        } while (changed);
+
+        return order;
+    }
+
+    private static boolean explode(
+            final LinkedList<SnailNumber> originalOrder, final LinkedList<SnailNumber> newOrder) {
+        boolean changed = false;
+        // explode loop
+        for (int i = 0; i < originalOrder.size(); i++) {
+            final SnailNumber num = originalOrder.get(i);
+
+            if (num.depth < 5) {
+                newOrder.add(num);
+                continue;
+            }
+
+            changed = true;
+            newOrder.add(explode(num.parent, originalOrder, newOrder, i++));
+        }
+
+        return changed;
+    }
+
+    private static SnailNumber explode(
+            final SnailNumber toExplode,
+            final LinkedList<SnailNumber> remainingOrder,
+            final LinkedList<SnailNumber> orderSoFar,
+            final int index) {
+        if (index > 0 && !orderSoFar.isEmpty()) {
+            final SnailNumber prev = orderSoFar.get(orderSoFar.size() - 1);
+            prev.value += toExplode.left.value;
+        }
+        if (index < remainingOrder.size() - 2) {
+            // we ran into the left atom first; skip the right one
+            final SnailNumber next = remainingOrder.get(index + 2);
+            next.value += toExplode.right.value;
+        }
+
+        final SnailNumber replacementZero = new SnailNumber(0, toExplode.depth);
+        replacementZero.parent = toExplode.parent;
+        if (replacementZero.parent.left == toExplode) {
+            replacementZero.parent.left = replacementZero;
+        } else {
+            replacementZero.parent.right = replacementZero;
+        }
+
+        return replacementZero;
+    }
+
+    private static boolean split(
+            final LinkedList<SnailNumber> order, final LinkedList<SnailNumber> finalOrder) {
+        for (int i = 0; i < order.size(); i++) {
+            final SnailNumber num = order.get(i);
+            if (num.splitMe()) {
+                finalOrder.add(num.left);
+                finalOrder.add(num.right);
+
+                finalOrder.addAll(order.subList(i + 1, order.size()));
+                return true;
+            }
+
+            finalOrder.add(num);
+        }
+
+        return false;
+    }
+
+    static class SnailNumber implements Cloneable {
         private Type type;
         private long value;
         private SnailNumber left;
@@ -198,9 +239,7 @@ public class Day18 {
 
         enum Type {
             ATOM,
-            PAIR,
-            PRUNE_ME,
-            ;
+            PAIR
         }
 
         private SnailNumber(final long value, final int depth) {
@@ -222,27 +261,24 @@ public class Day18 {
                 return lToR;
             }
 
-            return right.dfs(left.dfs(lToR));
+            return this.right.dfs(this.left.dfs(lToR));
         }
 
         private long getMagnitude() {
             if (this.type == ATOM) {
-                return value;
+                return this.value;
             }
-            return 3 * left.getMagnitude() + 2 * right.getMagnitude();
+            return 3 * this.left.getMagnitude() + 2 * this.right.getMagnitude();
         }
 
         private boolean splitMe() {
-            if (this.type != ATOM || this.parent == null) {
-                throw new IllegalStateException();
-            }
             if (this.value < 10) {
                 return false;
             }
 
-            this.left = new SnailNumber(this.value / 2, depth + 1);
+            this.left = new SnailNumber(this.value / 2, this.depth + 1);
             this.left.parent = this;
-            this.right = new SnailNumber(this.value / 2 + (this.value % 2), depth + 1);
+            this.right = new SnailNumber(this.value / 2 + (this.value % 2), this.depth + 1);
             this.right.parent = this;
 
             this.type = PAIR;
@@ -252,7 +288,7 @@ public class Day18 {
         }
 
         private void incrementDepth() {
-            depth++;
+            this.depth++;
 
             if (this.type != ATOM) {
                 this.left.incrementDepth();
@@ -263,10 +299,29 @@ public class Day18 {
         @Override
         public String toString() {
 
-            if (type == ATOM) {
-                return Long.toString(value);
+            if (this.type == ATOM) {
+                return Long.toString(this.value);
             }
-            return "[" + left + "," + right + "]";
+            return "[" + this.left + "," + this.right + "]";
+        }
+
+        @SuppressWarnings({
+            "CloneDoesntDeclareCloneNotSupportedException",
+            "MethodDoesntCallSuperMethod"
+        })
+        @Override
+        protected SnailNumber clone() {
+            if (this.type == ATOM) {
+                return new SnailNumber(this.value, this.depth);
+            }
+
+            final SnailNumber newLeft = this.left.clone();
+            final SnailNumber newRight = this.right.clone();
+            final SnailNumber newMe = new SnailNumber(newLeft, newRight, this.depth);
+            newLeft.parent = newMe;
+            newRight.parent = newMe;
+
+            return newMe;
         }
     }
 
