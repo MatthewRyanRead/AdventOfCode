@@ -10,18 +10,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static tech.readonly.aoc2021.Day19.Beacon.Swap;
-import static tech.readonly.aoc2021.Day19.Beacon.Swap.SWAPS;
-import static tech.readonly.aoc2021.Day19.Beacon.Swap.XYZ;
-import static tech.readonly.aoc2021.Day19.Beacon.Transform;
-import static tech.readonly.aoc2021.Day19.Beacon.Transform.DEFAULT;
-import static tech.readonly.aoc2021.Day19.Beacon.Transform.TRANSFORMS;
+import static tech.readonly.aoc2021.Day19.Inversion.DEFAULT;
+import static tech.readonly.aoc2021.Day19.Inversion.INVERSIONS;
+import static tech.readonly.aoc2021.Day19.Swap.SWAPS;
+import static tech.readonly.aoc2021.Day19.Swap.XYZ;
 
+@SuppressWarnings("OptionalGetWithoutIsPresent")
 public class Day19 {
     public static void main(final String[] args) throws Exception {
         final Set<Scanner> scanners = new HashSet<>();
@@ -38,31 +35,22 @@ public class Day19 {
                     currScanner = new Scanner(currScanner == null ? 0 : currScanner.id + 1);
                     scanners.add(currScanner);
                 } else {
+                    //noinspection ConstantConditions
                     currScanner.beacons.add(new Beacon(line));
                 }
             }
         }
-
         scanners.forEach(Scanner::calcDistances);
 
-        final AtomicBoolean flag = new AtomicBoolean();
-        final AtomicReference<Scanner> firstScanner = new AtomicReference<>();
-        scanners.removeIf(
-                s -> {
-                    if (!flag.getAndSet(true)) {
-                        firstScanner.set(s);
-                        return true;
-                    }
-                    return false;
-                });
-
+        final Scanner firstScanner = scanners.stream().findFirst().get();
+        scanners.remove(firstScanner);
         final List<Scanner> transformedScanners = new ArrayList<>();
-        transformedScanners.add(firstScanner.get());
+        transformedScanners.add(firstScanner);
         int referenceScannerIndex = 0;
 
         do {
             final Scanner referenceScanner = transformedScanners.get(referenceScannerIndex);
-            final List<Scanner> matchesFound = new ArrayList<>();
+            Scanner foundMatch = null;
             final List<Scanner> scannerList = new ArrayList<>(scanners);
 
             findMatch:
@@ -88,17 +76,21 @@ public class Day19 {
                                                                     checkDistance.distSet))
                                             .findFirst()
                                             .get();
-                            Transform transform = DEFAULT;
+
+                            Inversion inversion = DEFAULT;
                             Swap swap = XYZ;
 
+                            // I don't want to implement a matrix class (or figure out a library
+                            // for it), so I'm going to do all 48 permutations -- the 24 mirrored
+                            // ones are wasted, but this is still more than fast enough
                             transformFinder:
-                            for (int k = 0; k < TRANSFORMS.size(); k++) {
-                                transform = TRANSFORMS.get(k);
+                            for (int k = 0; k < INVERSIONS.size(); k++) {
+                                inversion = INVERSIONS.get(k);
 
                                 for (int m = 0; m < SWAPS.size(); m++) {
                                     swap = SWAPS.get(m);
                                     int[] xyz =
-                                            transform.transform(
+                                            inversion.transform(
                                                     checkDistance.distList.get(0),
                                                     checkDistance.distList.get(1),
                                                     checkDistance.distList.get(2));
@@ -115,7 +107,7 @@ public class Day19 {
                             final Beacon unscaledTransform =
                                     new Beacon(
                                             checkDistance.beacon1,
-                                            transform,
+                                            inversion,
                                             swap,
                                             new int[] {0, 0, 0});
                             final int[] offset =
@@ -131,15 +123,16 @@ public class Day19 {
 
                             for (final Beacon beaconToTransform : beaconsToTransform) {
                                 scannerToCheck.beacons.add(
-                                        new Beacon(beaconToTransform, transform, swap, offset));
+                                        new Beacon(beaconToTransform, inversion, swap, offset));
                             }
+
                             scannerToCheck.distances.clear();
                             scannerToCheck.calcDistances();
                             scannerToCheck.position[0] = -offset[0];
                             scannerToCheck.position[1] = -offset[1];
                             scannerToCheck.position[2] = -offset[2];
 
-                            matchesFound.add(scannerToCheck);
+                            foundMatch = scannerToCheck;
                             scanners.remove(scannerToCheck);
 
                             break findMatch;
@@ -148,19 +141,12 @@ public class Day19 {
                 }
             }
 
-            if (matchesFound.isEmpty()
-                    && ++referenceScannerIndex > transformedScanners.size() - 1) {
+            if (foundMatch != null) {
+                transformedScanners.add(foundMatch);
+            } else if (++referenceScannerIndex > transformedScanners.size() - 1) {
                 referenceScannerIndex = 0;
             }
-
-            transformedScanners.addAll(matchesFound);
         } while (!scanners.isEmpty());
-
-        /*System.out.println(
-        transformedScanners.stream()
-                .sorted(Comparator.comparingInt(s -> s.id))
-                .map(Scanner::toString)
-                .collect(Collectors.joining("\n\n")));*/
 
         final Set<Beacon> allBeacons =
                 transformedScanners.stream()
@@ -177,6 +163,27 @@ public class Day19 {
                                                         && b.z == b2.z));
 
         System.out.println("Part 1: " + allBeacons.size());
+
+        int maxDistance = 0;
+        for (int i = 0; i < transformedScanners.size(); i++) {
+            final Scanner scanner1 = transformedScanners.get(i);
+
+            for (int j = 0; j < transformedScanners.size(); j++) {
+                if (i == j) continue;
+
+                final Scanner scanner2 = transformedScanners.get(j);
+
+                final int distance =
+                        Math.abs(scanner1.position[0] - scanner2.position[0])
+                                + Math.abs(scanner1.position[1] - scanner2.position[1])
+                                + Math.abs(scanner1.position[2] - scanner2.position[2]);
+                if (distance > maxDistance) {
+                    maxDistance = distance;
+                }
+            }
+        }
+
+        System.out.println("Part 2: " + maxDistance);
     }
 
     private static class Scanner {
@@ -184,7 +191,7 @@ public class Day19 {
         private final List<Beacon> beacons = new ArrayList<>();
         private final Map<Beacon, Set<BeaconDistance>> distances = new HashMap<>();
 
-        private int[] position = {0, 0, 0};
+        private final int[] position = {0, 0, 0};
 
         private Scanner(final int id) {
             this.id = id;
@@ -221,8 +228,6 @@ public class Day19 {
 
     static class Beacon {
         private final int x, y, z;
-        private final Transform transform;
-        private final Swap swap;
 
         private Beacon(final String string) {
             final int[] xyz =
@@ -231,104 +236,34 @@ public class Day19 {
             x = xyz[0];
             y = xyz[1];
             z = xyz[2];
-            transform = Transform.DEFAULT;
-            swap = Swap.XYZ;
         }
 
         private Beacon(
                 final Beacon beacon,
-                final Transform transform,
+                final Inversion inversion,
                 final Swap swap,
                 final int[] offset) {
-            int[] xyz = transform.transform(beacon.x, beacon.y, beacon.z);
+            int[] xyz = inversion.transform(beacon.x, beacon.y, beacon.z);
             xyz = swap.transform(xyz[0], xyz[1], xyz[2]);
 
             this.x = xyz[0] - offset[0];
             this.y = xyz[1] - offset[1];
             this.z = xyz[2] - offset[2];
-            this.transform = transform;
-            this.swap = swap;
         }
 
         @Override
         public String toString() {
             return String.format("%d,%d,%d", x, y, z);
         }
-
-        enum Transform {
-            DEFAULT(new int[] {1, 1, 1}),
-            NEGATE_X(new int[] {-1, 1, 1}),
-            NEGATE_Y(new int[] {1, -1, 1}),
-            NEGATE_Z(new int[] {1, 1, -1}),
-            NEGATE_XY(new int[] {-1, -1, 1}),
-            NEGATE_XZ(new int[] {-1, 1, -1}),
-            NEGATE_YZ(new int[] {1, -1, -1}),
-            NEGATE_XYZ(new int[] {-1, -1, -1});
-
-            static final Map<Integer, Transform> TRANSFORMS =
-                    Arrays.stream(Transform.values())
-                            .collect(Collectors.toMap(Enum::ordinal, Function.identity()));
-            private final int[] matrix;
-
-            Transform(final int[] matrix) {
-                this.matrix = matrix;
-            }
-
-            private int[] transform(final int x, final int y, final int z) {
-                return new int[] {x * matrix[0], y * matrix[1], z * matrix[2]};
-            }
-
-            private int[] reverse(final int x, final int y, final int z) {
-                return transform(x, y, z);
-            }
-        }
-
-        enum Swap {
-            XYZ(new int[] {0, 1, 2}),
-            XZY(new int[] {0, 2, 1}),
-            YXZ(new int[] {1, 0, 2}),
-            YZX(new int[] {2, 0, 1}),
-            ZXY(new int[] {1, 2, 0}),
-            ZYX(new int[] {2, 1, 0});
-
-            static final Map<Integer, Swap> SWAPS =
-                    Arrays.stream(Swap.values())
-                            .collect(Collectors.toMap(Enum::ordinal, Function.identity()));
-            private final int[] positions;
-
-            Swap(final int[] positions) {
-                this.positions = positions;
-            }
-
-            private int[] transform(final int x, final int y, final int z) {
-                final int[] result = new int[3];
-                result[positions[0]] = x;
-                result[positions[1]] = y;
-                result[positions[2]] = z;
-                return result;
-            }
-
-            private int[] reverse(final int x, final int y, final int z) {
-                int[] input = new int[] {x, y, z};
-                int[] result = new int[3];
-
-                for (int i = 0; i < 3; i++) {
-                    result[i] = input[positions[i]];
-                }
-
-                return result;
-            }
-        }
     }
 
     private static class BeaconDistance {
-        private final Beacon beacon1, beacon2;
+        private final Beacon beacon1;
         private final List<Integer> distList = new ArrayList<>(3);
         private final Set<Integer> distSet = new HashSet<>(3);
 
         private BeaconDistance(final Beacon beacon1, final Beacon beacon2) {
             this.beacon1 = beacon1;
-            this.beacon2 = beacon2;
             distList.add(beacon1.x - beacon2.x);
             distList.add(beacon1.y - beacon2.y);
             distList.add(beacon1.z - beacon2.z);
@@ -347,6 +282,56 @@ public class Day19 {
         @Override
         public int hashCode() {
             return Objects.hash(distSet);
+        }
+    }
+
+    enum Inversion {
+        DEFAULT(new int[] {1, 1, 1}),
+        NEGATE_X(new int[] {-1, 1, 1}),
+        NEGATE_Y(new int[] {1, -1, 1}),
+        NEGATE_Z(new int[] {1, 1, -1}),
+        NEGATE_XY(new int[] {-1, -1, 1}),
+        NEGATE_XZ(new int[] {-1, 1, -1}),
+        NEGATE_YZ(new int[] {1, -1, -1}),
+        NEGATE_XYZ(new int[] {-1, -1, -1});
+
+        static final Map<Integer, Inversion> INVERSIONS =
+                Arrays.stream(Inversion.values())
+                        .collect(Collectors.toMap(Enum::ordinal, Function.identity()));
+        private final int[] matrix;
+
+        Inversion(final int[] matrix) {
+            this.matrix = matrix;
+        }
+
+        private int[] transform(final int x, final int y, final int z) {
+            return new int[] {x * matrix[0], y * matrix[1], z * matrix[2]};
+        }
+    }
+
+    enum Swap {
+        XYZ(new int[] {0, 1, 2}),
+        XZY(new int[] {0, 2, 1}),
+        YXZ(new int[] {1, 0, 2}),
+        YZX(new int[] {2, 0, 1}),
+        ZXY(new int[] {1, 2, 0}),
+        ZYX(new int[] {2, 1, 0});
+
+        static final Map<Integer, Swap> SWAPS =
+                Arrays.stream(Swap.values())
+                        .collect(Collectors.toMap(Enum::ordinal, Function.identity()));
+        private final int[] positions;
+
+        Swap(final int[] positions) {
+            this.positions = positions;
+        }
+
+        private int[] transform(final int x, final int y, final int z) {
+            final int[] result = new int[3];
+            result[positions[0]] = x;
+            result[positions[1]] = y;
+            result[positions[2]] = z;
+            return result;
         }
     }
 }
