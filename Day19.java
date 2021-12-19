@@ -3,14 +3,20 @@ package tech.readonly.aoc2021;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Day19 {
     public static void main(final String[] args) throws Exception {
-        final List<Scanner> scanners = new ArrayList<>();
+        final Set<Scanner> scanners = new HashSet<>();
 
         try (final java.util.Scanner input =
                 new java.util.Scanner(new File("inputs/samples/day19.txt"))) {
@@ -30,16 +36,89 @@ public class Day19 {
             }
         }
 
+        scanners.forEach(Scanner::calcDistances);
+
+        final AtomicBoolean flag = new AtomicBoolean();
+        final AtomicReference<Scanner> firstScanner = new AtomicReference<>();
+        scanners.removeIf(
+                s -> {
+                    if (!flag.getAndSet(true)) {
+                        firstScanner.set(s);
+                        return true;
+                    }
+                    return false;
+                });
+
+        final List<Scanner> transformedScanners = new ArrayList<>();
+        transformedScanners.add(firstScanner.get());
+        int referenceScannerIndex = 0;
+
+        do {
+            final Scanner referenceScanner = transformedScanners.get(referenceScannerIndex);
+            final List<Scanner> matchesFound = new ArrayList<>();
+            final List<Scanner> scannerList = new ArrayList<>(scanners);
+            boolean breakout = false;
+
+            for (final Scanner scannerToCheck : scannerList) {
+                for (int i = 0; i < referenceScanner.beacons.size(); i++) {
+                    final Set<BeaconDistance> refDistances =
+                            referenceScanner.distances.get(referenceScanner.beacons.get(i));
+
+                    for (int j = 0; j < scannerToCheck.beacons.size(); j++) {
+                        Beacon beaconToCheck = scannerToCheck.beacons.get(j);
+                        final Set<BeaconDistance> checkDistances =
+                                new HashSet<>(scannerToCheck.distances.get(beaconToCheck));
+                        checkDistances.retainAll(refDistances);
+
+                        if (checkDistances.size() >= 11) {
+                            // TODO: need to re-orient
+                            matchesFound.add(scannerToCheck);
+                            scanners.remove(scannerToCheck);
+                            breakout = true;
+                            break;
+                        }
+                    }
+
+                    if (breakout) break;
+                }
+
+                if (breakout) break;
+            }
+
+            if (matchesFound.isEmpty()
+                    && ++referenceScannerIndex > transformedScanners.size() - 1) {
+                referenceScannerIndex = 0;
+            }
+
+            transformedScanners.addAll(matchesFound);
+        } while (!scanners.isEmpty());
+
         System.out.println(
                 scanners.stream().map(Scanner::toString).collect(Collectors.joining("\n\n")));
     }
 
     private static class Scanner {
-        final int id;
-        final List<Beacon> beacons = new ArrayList<>();
+        private final int id;
+        private final List<Beacon> beacons = new ArrayList<>();
+        private final Map<Beacon, Set<BeaconDistance>> distances = new HashMap<>();
 
         private Scanner(final int id) {
             this.id = id;
+        }
+
+        private void calcDistances() {
+            for (int i = 0; i < beacons.size(); i++) {
+                final Beacon beacon1 = beacons.get(i);
+                final Set<BeaconDistance> beaconDistances = new HashSet<>();
+
+                for (int j = 0; j < beacons.size(); j++) {
+                    if (i == j) continue;
+
+                    beaconDistances.add(new BeaconDistance(beacon1, beacons.get(j)));
+                }
+
+                distances.put(beacon1, beaconDistances);
+            }
         }
 
         @Override
@@ -51,9 +130,9 @@ public class Day19 {
     }
 
     private static class Beacon {
-        final int x, y, z;
-        final Transform transform;
-        final Swap swap;
+        private final int x, y, z;
+        private final Transform transform;
+        private final Swap swap;
 
         private Beacon(final String string) {
             final int[] xyz =
@@ -147,6 +226,35 @@ public class Day19 {
 
                 return result;
             }
+        }
+    }
+
+    private static class BeaconDistance {
+        private final Beacon beacon1, beacon2;
+        private final List<Integer> distList = new ArrayList<>(3);
+        private final Set<Integer> distSet = new HashSet<>(3);
+
+        private BeaconDistance(final Beacon beacon1, final Beacon beacon2) {
+            this.beacon1 = beacon1;
+            this.beacon2 = beacon2;
+            distList.add(beacon1.x - beacon2.x);
+            distList.add(beacon1.y - beacon2.y);
+            distList.add(beacon1.z - beacon2.z);
+            distList.forEach(val -> distSet.add(Math.abs(val)));
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof BeaconDistance)) return false;
+
+            final BeaconDistance other = (BeaconDistance) obj;
+
+            return Objects.equals(distSet, other.distSet);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(distSet);
         }
     }
 }
