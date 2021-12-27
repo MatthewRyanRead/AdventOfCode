@@ -1,9 +1,12 @@
 package tech.readonly.aoc2021;
 
+import tech.readonly.aoc2021.Day23Part2.Edge.Direction;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,24 +23,34 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static tech.readonly.aoc2021.Day23Part2.Edge.Direction.DOWN;
+import static tech.readonly.aoc2021.Day23Part2.Edge.Direction.DOWN_AND_LEFT;
+import static tech.readonly.aoc2021.Day23Part2.Edge.Direction.DOWN_AND_RIGHT;
 import static tech.readonly.aoc2021.Day23Part2.Edge.Direction.LEFT;
 import static tech.readonly.aoc2021.Day23Part2.Edge.Direction.RIGHT;
 import static tech.readonly.aoc2021.Day23Part2.Edge.Direction.UP;
+import static tech.readonly.aoc2021.Day23Part2.Edge.Direction.UP_AND_LEFT;
+import static tech.readonly.aoc2021.Day23Part2.Edge.Direction.UP_AND_RIGHT;
 import static tech.readonly.aoc2021.Day23Part2.Edge.Direction.VALID_CONTINUATIONS;
 
 public class Day23Part2 {
+    public static final int HALL_LENGTH = 7;
+    public static final int NUM_COLS = 4;
+    public static final int COL_DEPTH = 4;
+    public static final int SCORE_CUTOFF = 45376; // got this manually
+    public static final List<String> COLUMN_GOALS = List.of("A", "B", "C", "D");
+
     public static void main(final String[] args) throws Exception {
         final AtomicInteger prevId = new AtomicInteger(-1);
 
         final List<Node> hall =
-                IntStream.range(0, 7)
+                IntStream.range(0, HALL_LENGTH)
                         .mapToObj(i -> new Node(prevId.incrementAndGet()))
                         .collect(toList());
         for (int i = 2; i < hall.size() - 1; i++) {
             final Node curr = hall.get(i);
             final Node prev = hall.get(i - 1);
-            curr.edges.add(new Edge(curr, prev, 2, RIGHT));
-            prev.edges.add(new Edge(prev, curr, 2, LEFT));
+            curr.edges.add(new Edge(curr, prev, 2, LEFT));
+            prev.edges.add(new Edge(prev, curr, 2, RIGHT));
         }
 
         Node outer = hall.get(0);
@@ -51,39 +64,33 @@ public class Day23Part2 {
         inner.edges.add(new Edge(inner, outer, 1, RIGHT));
 
         final Set<Node> nodes = new HashSet<>(hall);
-        final Node[][] colNodes = new Node[4][4];
+        final Node[][] colNodes = new Node[NUM_COLS][COL_DEPTH];
 
         try (final Scanner scanner = new Scanner(new File("inputs/day23.txt"))) {
             scanner.nextLine();
             scanner.nextLine();
 
             String[] row = scanner.nextLine().trim().replace("#", "").split("");
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < NUM_COLS; i++) {
                 final Node colNode =
-                        new Node(
-                                prevId.incrementAndGet(),
-                                row[i],
-                                new String[] {"A", "B", "C", "D"}[i]);
+                        new Node(prevId.incrementAndGet(), row[i], COLUMN_GOALS.get(i));
                 final Node hallNodeLeft = hall.get(i + 1);
                 final Node hallNodeRight = hall.get(i + 2);
-                colNode.edges.add(new Edge(colNode, hallNodeLeft, 2, UP));
-                colNode.edges.add(new Edge(colNode, hallNodeRight, 2, UP));
-                hallNodeLeft.edges.add(new Edge(hallNodeLeft, colNode, 2, DOWN));
-                hallNodeRight.edges.add(new Edge(hallNodeRight, colNode, 2, DOWN));
+                colNode.edges.add(new Edge(colNode, hallNodeLeft, 2, UP_AND_LEFT));
+                colNode.edges.add(new Edge(colNode, hallNodeRight, 2, UP_AND_RIGHT));
+                hallNodeLeft.edges.add(new Edge(hallNodeLeft, colNode, 2, DOWN_AND_RIGHT));
+                hallNodeRight.edges.add(new Edge(hallNodeRight, colNode, 2, DOWN_AND_LEFT));
 
                 colNodes[0][i] = colNode;
                 nodes.add(colNode);
             }
 
-            for (int i = 1; i < 4; i++) {
+            for (int i = 1; i < COL_DEPTH; i++) {
                 row = scanner.nextLine().trim().replace("#", "").split("");
 
-                for (int j = 0; j < 4; j++) {
+                for (int j = 0; j < NUM_COLS; j++) {
                     final Node colNode =
-                            new Node(
-                                    prevId.incrementAndGet(),
-                                    row[j],
-                                    new String[] {"A", "B", "C", "D"}[i]);
+                            new Node(prevId.incrementAndGet(), row[j], COLUMN_GOALS.get(j));
                     final Node prevNode = colNodes[i - 1][j];
                     colNode.edges.add(new Edge(colNode, prevNode, 1, UP));
                     prevNode.edges.add(new Edge(prevNode, colNode, 1, DOWN));
@@ -93,7 +100,7 @@ public class Day23Part2 {
             }
         }
 
-        solve(new Game(nodes, 0));
+        solve(new Game(nodes));
     }
 
     public static void solve(final Game input) {
@@ -105,55 +112,56 @@ public class Day23Part2 {
         final Map<String, Integer> gamesSeen = new HashMap<>();
         gamesSeen.put(input.compactString(), Integer.MAX_VALUE);
 
-        while (true) {
-            if (games.isEmpty()) {
-                throw new IllegalStateException();
-            }
+        int minAnswer = Integer.MAX_VALUE;
 
+        do {
             final Game currGame = games.remove();
             if (currGame.isSolved()) {
-                System.out.println("Part 2: " + currGame.score);
+                minAnswer = Math.min(minAnswer, currGame.score);
                 continue;
             }
-            if (gamesSeen.size() % 10000 == 0) {
-                System.out.println(
-                        "\nCurrent game score: "
-                                + currGame.score
-                                + "\nGames left to assess: "
-                                + games.size());
-            }
 
-            if (games.isEmpty() && gamesSeen.size() > 1) {
-                System.out.println("Last game assessed:\n" + currGame);
-            }
+            final List<Edge> moves = generateMoves(currGame);
+            for (final Edge move : moves) {
+                final Game newGame = currGame.makeMove(move);
+                if (newGame.score > SCORE_CUTOFF) {
+                    continue;
+                }
 
-            generateMoves(currGame)
-                    .forEach(
-                            edge -> {
-                                final Game newGame = currGame.makeMove(edge);
-                                final String newGameStr = currGame.compactString();
-                                final int prevScore =
-                                        gamesSeen.getOrDefault(newGameStr, Integer.MAX_VALUE);
-                                if (newGame.score < prevScore) {
-                                    gamesSeen.put(newGameStr, newGame.score);
-                                    games.add(newGame);
-                                }
-                            });
-        }
+                final String newGameStr = newGame.compactString();
+                final int prevScore = gamesSeen.getOrDefault(newGameStr, Integer.MAX_VALUE);
+
+                if (newGame.score < prevScore) {
+                    gamesSeen.put(newGameStr, newGame.score);
+                    games.add(newGame);
+                }
+            }
+        } while (!games.isEmpty());
+
+        System.out.println("Part 2: " + minAnswer);
     }
 
     public static List<Edge> generateMoves(final Game game) {
         final List<Edge> moves = new ArrayList<>();
-        for (final Node node : game.nodesById.values()) {
-            if (node.isEmpty()) continue;
+        final Node lastNode =
+                game.lastMove == null ? null : game.nodesById.get(game.lastMove.destId);
 
-            if (game.lastMove != null && game.lastMove.destId != node.id) {
-                final Node lastNode = game.nodesById.get(game.lastMove.destId);
-                // must keep moving lastNode
-                if (!lastNode.shouldBeEmpty() && !lastNode.value.equals(lastNode.goal)) {
-                    continue;
-                }
+        if (lastNode != null && !isFinished(lastNode, game)) {
+            if (game.lastMove.direction == UP
+                    || (lastNode.numCompletedMoves == 1
+                            && (game.lastMove.direction == LEFT
+                                    || game.lastMove.direction == RIGHT))) {
+                return generateMoves(game, lastNode);
             }
+            if (game.lastMove.direction.name().startsWith("DOWN")
+                    && game.nodesById.containsKey(lastNode.id + NUM_COLS)
+                    && game.nodesById.get(lastNode.id + NUM_COLS).isEmpty()) {
+                return generateMoves(game, lastNode);
+            }
+        }
+
+        for (final Node node : game.nodesById.values()) {
+            if (node.isEmpty() || isFinished(node, game)) continue;
 
             moves.addAll(generateMoves(game, node));
         }
@@ -162,114 +170,114 @@ public class Day23Part2 {
     }
 
     public static List<Edge> generateMoves(final Game game, final Node startNode) {
-        if (game.lastMove != null && startNode.id == game.lastMove.destId) {
-            return generateFurtherMoves(game, startNode);
+        if (startNode.numCompletedMoves == 1
+                && !game.hasColumnEmptied(COLUMN_GOALS.indexOf(startNode.value) + HALL_LENGTH)) {
+            return List.of();
         }
 
-        return generateNewMoves(game, startNode);
+        final List<Edge> moves =
+                generateMoves(
+                        game,
+                        startNode,
+                        game.lastMove != null && startNode.id == game.lastMove.destId);
+
+        if (moves.stream().anyMatch(e -> e.direction.name().startsWith("DOWN"))) {
+            moves.removeIf(e -> !e.direction.name().startsWith("DOWN"));
+        }
+
+        return moves;
     }
 
-    public static List<Edge> generateFurtherMoves(final Game game, final Node lastMoved) {
+    public static List<Edge> generateMoves(
+            final Game game, final Node start, final boolean continuing) {
         final List<Edge> moves = new ArrayList<>();
+        final Set<Direction> validDirections =
+                continuing
+                        ? VALID_CONTINUATIONS.get(game.lastMove.direction)
+                        : EnumSet.allOf(Direction.class);
 
-        for (final Edge edge : lastMoved.edges) {
+        for (final Edge edge : start.edges) {
             final Node dest = game.nodesById.get(edge.destId);
+            if (!dest.isEmpty() || !validDirections.contains(edge.direction)) continue;
 
-            if (VALID_CONTINUATIONS.get(game.lastMove.direction).contains(edge.direction)
-                    && dest.isEmpty()
-                    && (dest.shouldBeEmpty()
-                            || dest.goal.equals(lastMoved.value)
-                            || game.lastMove.direction == UP)) {
-                boolean shouldAdd = true;
-
-                if (dest.goal.equals(lastMoved.value)) {
-                    for (final Edge edge2 : dest.edges) {
-                        final Node attached = game.nodesById.get(edge2.destId);
-                        if (!attached.shouldBeEmpty()
-                                && !attached.isEmpty()
-                                && !attached.goal.equals(attached.value)) {
-                            shouldAdd = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (shouldAdd) {
-                    moves.add(edge);
-                }
+            if (dest.shouldBeEmpty()
+                    || (continuing && game.lastMove.direction == UP)
+                    || (!continuing && edge.direction == UP)
+                    || (dest.goal.equals(start.value) && game.hasColumnEmptied(dest.id))) {
+                moves.add(edge);
             }
         }
 
         return moves;
     }
 
-    public static List<Edge> generateNewMoves(final Game game, final Node startNode) {
-        final List<Edge> moves = new ArrayList<>();
-
-        for (final Edge edge : startNode.edges) {
-            final Node dest = game.nodesById.get(edge.destId);
-            if (dest.isEmpty()
-                    && (dest.shouldBeEmpty()
-                            || dest.goal.equals(startNode.value)
-                            || edge.direction == UP)) {
-                boolean shouldAdd = true;
-
-                if (dest.goal.equals(startNode.value)) {
-                    for (final Edge edge2 : dest.edges) {
-                        final Node attached = game.nodesById.get(edge2.destId);
-                        if (!attached.shouldBeEmpty()
-                                && !attached.isEmpty()
-                                && !attached.goal.equals(attached.value)) {
-                            shouldAdd = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (shouldAdd) {
-                    moves.add(edge);
-                }
+    public static boolean isFinished(final Node node, final Game game) {
+        if (node.value.equals(node.goal)) {
+            if (node.id >= game.nodesById.size() - NUM_COLS) {
+                return true;
             }
+
+            final Node nodeBelow = game.nodesById.get(node.id + NUM_COLS);
+            return nodeBelow.value.equals(nodeBelow.goal);
         }
 
-        return moves;
+        return false;
     }
 
     public static class Game {
         public final Map<Integer, Node> nodesById;
         public final int score;
+        public final int numMoves;
+        public final Edge lastMove;
+        public final List<Game> ancestors = new ArrayList<>();
 
-        public int numMoves = 0;
-        public Edge lastMove;
-
-        public Game(final Set<Node> nodes, final int score) {
-            this.nodesById = nodes.stream().collect(toMap(n -> n.id, identity()));
-            this.score = score;
+        public Game(final Set<Node> nodes) {
+            this(nodes, 0, 0, null);
         }
 
-        public Game makeMove(final Edge edge) {
-            final Node one = nodesById.get(edge.startId);
-            final Node two = nodesById.get(edge.destId);
-            final Node newOne = new Node(one.id, two.value, one.goal);
-            final Node newTwo = new Node(two.id, one.value, two.goal);
-            newOne.edges.addAll(one.edges);
-            newTwo.edges.addAll(two.edges);
+        private Game(
+                final Set<Node> nodes, final int score, final int numMoves, final Edge lastMove) {
+            this.nodesById = nodes.stream().collect(toMap(n -> n.id, identity()));
+            this.score = score;
+            this.numMoves = numMoves;
+            this.lastMove = lastMove;
+        }
 
-            final Set<Node> newNodes = new HashSet<>(nodesById.values());
+        public Game makeMove(final Edge move) {
+            final Node one = this.nodesById.get(move.startId);
+            final Node two = this.nodesById.get(move.destId);
+
+            final Set<Node> newNodes = new HashSet<>(this.nodesById.values());
             newNodes.remove(one);
             newNodes.remove(two);
+
+            final Node newOne = new Node(one, two.value, 0);
+            final Node newTwo = new Node(two, one.value, one.numCompletedMoves);
             newNodes.add(newOne);
             newNodes.add(newTwo);
 
-            final Game newGame = new Game(newNodes, this.score + getScore(newTwo.value, edge.cost));
-            newGame.numMoves = this.numMoves + 1;
-            newGame.lastMove = edge;
+            if (this.lastMove != null && move.startId != this.lastMove.destId) {
+                final Node lastNode = this.nodesById.get(this.lastMove.destId);
+                newNodes.remove(lastNode);
+
+                final Node newLastNode = new Node(lastNode);
+                newNodes.add(newLastNode);
+            }
+
+            final Game newGame =
+                    new Game(
+                            newNodes,
+                            this.score + getScore(newTwo.value, move.cost),
+                            this.numMoves + 1,
+                            move);
+            newGame.ancestors.addAll(this.ancestors);
+            newGame.ancestors.add(this);
 
             return newGame;
         }
 
         public boolean isSolved() {
-            return nodesById.values().stream().allMatch(n -> n.value.equals(n.goal));
+            return this.nodesById.values().stream().allMatch(n -> n.value.equals(n.goal));
         }
 
         public static int getScore(final String value, final int distance) {
@@ -287,14 +295,26 @@ public class Day23Part2 {
             }
         }
 
+        public boolean hasColumnEmptied(final int nodeId) {
+            final int columnId = (nodeId - HALL_LENGTH) % NUM_COLS;
+            for (int i = 0; i < COL_DEPTH; i++) {
+                final Node colNode = this.nodesById.get((i * NUM_COLS) + HALL_LENGTH + columnId);
+                if (!colNode.isEmpty() && !colNode.value.equals(colNode.goal)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         @Override
         public boolean equals(final Object o) {
             if (o == this) return true;
             if (!(o instanceof Game)) return false;
 
             final Game other = (Game) o;
-            for (int i = 0; i < 27; i++) {
-                if (!nodesById.get(i).value.equals(other.nodesById.get(i).value)) {
+            for (int i = 0; i < 23; i++) {
+                if (!this.nodesById.get(i).value.equals(other.nodesById.get(i).value)) {
                     return false;
                 }
             }
@@ -305,42 +325,54 @@ public class Day23Part2 {
         @Override
         public int hashCode() {
             return Arrays.hashCode(
-                    nodesById.values().stream().map(n -> n.value).toArray(String[]::new));
+                    this.nodesById.values().stream().map(n -> n.value).toArray(String[]::new));
         }
 
         @Override
         public String toString() {
             return "#############\n#"
-                    + IntStream.range(0, 2).mapToObj(i -> nodesById.get(i).value).collect(joining())
+                    + IntStream.range(0, 2)
+                            .mapToObj(i -> this.nodesById.get(i).value)
+                            .collect(joining())
                     + "."
-                    + IntStream.range(2, 3).mapToObj(i -> nodesById.get(i).value).collect(joining())
+                    + IntStream.range(2, 3)
+                            .mapToObj(i -> this.nodesById.get(i).value)
+                            .collect(joining())
                     + "."
-                    + IntStream.range(3, 4).mapToObj(i -> nodesById.get(i).value).collect(joining())
+                    + IntStream.range(3, 4)
+                            .mapToObj(i -> this.nodesById.get(i).value)
+                            .collect(joining())
                     + "."
-                    + IntStream.range(4, 5).mapToObj(i -> nodesById.get(i).value).collect(joining())
+                    + IntStream.range(4, 5)
+                            .mapToObj(i -> this.nodesById.get(i).value)
+                            .collect(joining())
                     + "."
-                    + IntStream.range(5, 7).mapToObj(i -> nodesById.get(i).value).collect(joining())
+                    + IntStream.range(5, 7)
+                            .mapToObj(i -> this.nodesById.get(i).value)
+                            .collect(joining())
                     + "#\n###"
                     + IntStream.range(7, 11)
-                            .mapToObj(i -> nodesById.get(i).value)
+                            .mapToObj(i -> this.nodesById.get(i).value)
                             .collect(joining("#"))
                     + "###\n  #"
                     + IntStream.range(11, 15)
-                            .mapToObj(i -> nodesById.get(i).value)
+                            .mapToObj(i -> this.nodesById.get(i).value)
                             .collect(joining("#"))
                     + "#\n  #"
                     + IntStream.range(15, 19)
-                            .mapToObj(i -> nodesById.get(i).value)
+                            .mapToObj(i -> this.nodesById.get(i).value)
                             .collect(joining("#"))
                     + "#\n  #"
                     + IntStream.range(19, 23)
-                            .mapToObj(i -> nodesById.get(i).value)
+                            .mapToObj(i -> this.nodesById.get(i).value)
                             .collect(joining("#"))
                     + "#\n  #########";
         }
 
         public String compactString() {
-            return IntStream.range(0, 23).mapToObj(i -> nodesById.get(i).value).collect(joining());
+            return IntStream.range(0, 23)
+                    .mapToObj(i -> this.nodesById.get(i).value)
+                    .collect(joining());
         }
     }
 
@@ -349,17 +381,32 @@ public class Day23Part2 {
         public final String value;
         public final String goal;
         public final Set<Edge> edges = new HashSet<>();
+        public final int numCompletedMoves;
 
         public Node(final int id) {
             this.id = id;
             this.value = ".";
             this.goal = ".";
+            this.numCompletedMoves = 0;
         }
 
         public Node(final int id, final String value, final String goal) {
             this.id = id;
             this.value = value;
             this.goal = goal;
+            this.numCompletedMoves = 0;
+        }
+
+        public Node(final Node base) {
+            this(base, base.value, base.numCompletedMoves + 1);
+        }
+
+        public Node(final Node base, final String value, final int numCompletedMoves) {
+            this.id = base.id;
+            this.value = value;
+            this.goal = base.goal;
+            this.edges.addAll(base.edges);
+            this.numCompletedMoves = numCompletedMoves;
         }
 
         public boolean isEmpty() {
@@ -373,12 +420,12 @@ public class Day23Part2 {
         @Override
         public boolean equals(final Object o) {
             if (!(o instanceof Node)) return false;
-            return id == ((Node) o).id;
+            return this.id == ((Node) o).id;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id);
+            return Objects.hash(this.id);
         }
     }
 
@@ -387,14 +434,22 @@ public class Day23Part2 {
             LEFT,
             RIGHT,
             UP,
-            DOWN;
+            DOWN,
+            UP_AND_LEFT,
+            UP_AND_RIGHT,
+            DOWN_AND_LEFT,
+            DOWN_AND_RIGHT;
 
             public static final Map<Direction, Set<Direction>> VALID_CONTINUATIONS =
                     Map.of(
-                            LEFT, Set.of(LEFT, DOWN),
-                            RIGHT, Set.of(RIGHT, DOWN),
-                            UP, Set.of(UP, LEFT, RIGHT),
-                            DOWN, Set.of(DOWN, LEFT, RIGHT));
+                            LEFT, Set.of(LEFT, DOWN_AND_LEFT),
+                            RIGHT, Set.of(RIGHT, DOWN_AND_RIGHT),
+                            UP, Set.of(UP, UP_AND_LEFT, UP_AND_RIGHT),
+                            DOWN, Set.of(DOWN),
+                            UP_AND_LEFT, Set.of(LEFT, DOWN_AND_LEFT),
+                            UP_AND_RIGHT, Set.of(RIGHT, DOWN_AND_RIGHT),
+                            DOWN_AND_LEFT, Set.of(DOWN),
+                            DOWN_AND_RIGHT, Set.of(DOWN));
         }
 
         public final int startId;
@@ -411,11 +466,11 @@ public class Day23Part2 {
 
         @Override
         public String toString() {
-            return startId + "->" + destId;
+            return this.startId + "->" + this.destId;
         }
 
         @Override
-        public boolean equals(Object o) {
+        public boolean equals(final Object o) {
             if (!(o instanceof Edge)) return false;
             return this.toString().equals(o.toString());
         }
