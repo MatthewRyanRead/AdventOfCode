@@ -1,8 +1,7 @@
 package tech.readonly.aoc2021;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -236,7 +235,7 @@ public class Day22 {
             return this.minX <= this.maxX && this.minY <= this.maxY && this.minZ <= this.maxZ;
         }
 
-        public boolean equivalentTo(@NotNull final Object o) {
+        public boolean equivalentTo(@Nonnull final Object o) {
             if (this == o) return true;
             if (getClass() != o.getClass()) return false;
 
