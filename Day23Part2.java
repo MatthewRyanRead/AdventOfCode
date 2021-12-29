@@ -121,7 +121,7 @@ public class Day23Part2 {
                 continue;
             }
 
-            final List<Edge> moves = generateMoves(currGame);
+            final List<Edge> moves = getAllPossibleMoves(currGame);
             for (final Edge move : moves) {
                 final Game newGame = currGame.makeMove(move);
                 if (newGame.score > SCORE_CUTOFF) {
@@ -141,46 +141,32 @@ public class Day23Part2 {
         System.out.println("Part 2: " + minAnswer);
     }
 
-    public static List<Edge> generateMoves(final Game game) {
+    public static List<Edge> getAllPossibleMoves(final Game game) {
         final List<Edge> moves = new ArrayList<>();
         final Node lastNode =
                 game.lastMove == null ? null : game.nodesById.get(game.lastMove.destId);
 
-        if (lastNode != null && !isFinished(lastNode, game)) {
+        if (lastNode != null && !isNodeFinishedMoving(lastNode, game)) {
             if (game.lastMove.direction == UP
                     || (lastNode.numCompletedMoves == 1
                             && (game.lastMove.direction == LEFT
                                     || game.lastMove.direction == RIGHT))) {
-                return generateMoves(game, lastNode);
+                return getMovesForNode(game, lastNode);
             }
             if (game.lastMove.direction.name().startsWith("DOWN")
                     && game.nodesById.containsKey(lastNode.id + NUM_COLS)
                     && game.nodesById.get(lastNode.id + NUM_COLS).isEmpty()) {
-                return generateMoves(game, lastNode);
+                return getMovesForNode(game, lastNode);
             }
         }
 
         for (final Node node : game.nodesById.values()) {
-            if (node.isEmpty() || isFinished(node, game)) continue;
+            if (node.isEmpty() || isNodeFinishedMoving(node, game)) continue;
 
-            moves.addAll(generateMoves(game, node));
+            moves.addAll(getMovesForNode(game, node));
         }
 
-        return moves;
-    }
-
-    public static List<Edge> generateMoves(final Game game, final Node startNode) {
-        if (startNode.numCompletedMoves == 1
-                && !game.hasColumnEmptied(COLUMN_GOALS.indexOf(startNode.value) + HALL_LENGTH)) {
-            return List.of();
-        }
-
-        final List<Edge> moves =
-                generateMoves(
-                        game,
-                        startNode,
-                        game.lastMove != null && startNode.id == game.lastMove.destId);
-
+        // always prioritize moving nodes into place
         if (moves.stream().anyMatch(e -> e.direction.name().startsWith("DOWN"))) {
             moves.removeIf(e -> !e.direction.name().startsWith("DOWN"));
         }
@@ -188,7 +174,22 @@ public class Day23Part2 {
         return moves;
     }
 
-    public static List<Edge> generateMoves(
+    public static List<Edge> getMovesForNode(final Game game, final Node startNode) {
+        if (startNode.numCompletedMoves == 1
+                && !game.hasColumnEmptied(COLUMN_GOALS.indexOf(startNode.value) + HALL_LENGTH)) {
+            return List.of();
+        }
+
+        final List<Edge> moves =
+                getValidMovesForNode(
+                        game,
+                        startNode,
+                        game.lastMove != null && startNode.id == game.lastMove.destId);
+
+        return moves;
+    }
+
+    public static List<Edge> getValidMovesForNode(
             final Game game, final Node start, final boolean continuing) {
         final List<Edge> moves = new ArrayList<>();
         final Set<Direction> validDirections =
@@ -211,17 +212,17 @@ public class Day23Part2 {
         return moves;
     }
 
-    public static boolean isFinished(final Node node, final Game game) {
-        if (node.value.equals(node.goal)) {
-            if (node.id >= game.nodesById.size() - NUM_COLS) {
-                return true;
-            }
-
-            final Node nodeBelow = game.nodesById.get(node.id + NUM_COLS);
-            return nodeBelow.value.equals(nodeBelow.goal);
+    public static boolean isNodeFinishedMoving(final Node node, final Game game) {
+        if (!node.value.equals(node.goal)) {
+            return false;
         }
 
-        return false;
+        if (node.id >= game.nodesById.size() - NUM_COLS) {
+            return true;
+        }
+
+        final Node nodeBelow = game.nodesById.get(node.id + NUM_COLS);
+        return nodeBelow.value.equals(nodeBelow.goal);
     }
 
     public static class Game {
@@ -260,7 +261,7 @@ public class Day23Part2 {
                 final Node lastNode = this.nodesById.get(this.lastMove.destId);
                 newNodes.remove(lastNode);
 
-                final Node newLastNode = new Node(lastNode);
+                final Node newLastNode = lastNode.makeMoveCompleted();
                 newNodes.add(newLastNode);
             }
 
@@ -397,16 +398,23 @@ public class Day23Part2 {
             this.numCompletedMoves = 0;
         }
 
-        public Node(final Node base) {
-            this(base, base.value, base.numCompletedMoves + 1);
-        }
-
         public Node(final Node base, final String value, final int numCompletedMoves) {
             this.id = base.id;
             this.value = value;
             this.goal = base.goal;
             this.edges.addAll(base.edges);
             this.numCompletedMoves = numCompletedMoves;
+        }
+
+        public Node makeMoveCompleted() {
+            int increment = 1;
+            if (this.numCompletedMoves == 0 && !this.shouldBeEmpty()) {
+                // moved out, through the hall, and into goal in 1 move
+                // count it as 1 move into the hall and 1 out, to make other logic simpler
+                increment = 2;
+            }
+
+            return new Node(this, this.value, this.numCompletedMoves + increment);
         }
 
         public boolean isEmpty() {
