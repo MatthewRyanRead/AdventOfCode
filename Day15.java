@@ -87,7 +87,7 @@ public class Day15 {
     private static class Node {
         private final int x;
         private final int y;
-        private long weight;
+        private final long weight;
 
         private final List<Node> connectedNodes = new ArrayList<>();
 
@@ -139,8 +139,6 @@ public class Day15 {
         final PriorityQueue<Node> unprocessed =
                 new PriorityQueue<>(Comparator.comparing(node -> distances[node.y][node.x]));
         unprocessed.addAll(nodes);
-
-        // open the door, get on the floor, everybody walk the Djikstrasaur
 
         while (!unprocessed.isEmpty()) {
             final Node minNode = unprocessed.remove();
