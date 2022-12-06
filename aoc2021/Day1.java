@@ -20,11 +20,11 @@ public class Day1 {
         for (int i = 1; i < input.size(); i++) {
             count1 += input.get(i) > input.get(i - 1) ? 1 : 0;
             if (i >= 3) {
-                count2 += input.get(i ) > input.get(i - 3) ? 1 : 0;
+                count2 += input.get(i) > input.get(i - 3) ? 1 : 0;
             }
         }
 
         System.out.println("Part 1:" + count1);
-        System.out.println("Part 1:" + count2);
+        System.out.println("Part 2:" + count2);
     }
 }
