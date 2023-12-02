@@ -67,5 +67,5 @@ fun part2(games: List<Game>) {
         powerSum += game.red.max() * game.green.max() * game.blue.max()
     }
 
-    println("Part 1: $powerSum")
+    println("Part 2: $powerSum")
 }
