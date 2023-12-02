@@ -1,11 +1,7 @@
 import java.io.File
 import java.util.Scanner
 
-data class Game(val id : Long, val red : List<Long>, val green : List<Long>, val blue : List<Long>) {
-    val totalRed = red.sum()
-    val totalGreen = green.sum()
-    val totalBlue = blue.sum()
-}
+data class Game(val id : Long, val red : List<Long>, val green : List<Long>, val blue : List<Long>)
 
 fun main() {
     val games = mutableListOf<Game>()
@@ -21,7 +17,7 @@ fun main() {
             val blue = mutableListOf<Long>()
             for (pull in pulls) {
                 val components = pull.trim().split(",")
-                var (r, g, b) = longArrayOf(0L, 0L, 0L)
+                var (r, g, b) = arrayOf(0L, 0L, 0L)
 
                 for (component in components) {
                     val (countStr, colorStr) = component.trim().split(" ")
@@ -46,10 +42,11 @@ fun main() {
     }
 
     part1(games)
+    part2(games)
 }
 
 fun part1(games : List<Game>) {
-    val (maxRed, maxGreen, maxBlue) = longArrayOf(12, 13, 14)
+    val (maxRed, maxGreen, maxBlue) = arrayOf(12L, 13L, 14L)
     var idSum = 0L
 
     for (game in games) {
@@ -61,4 +58,14 @@ fun part1(games : List<Game>) {
     }
 
     println("Part 1: $idSum")
+}
+
+fun part2(games: List<Game>) {
+    var powerSum = 0L
+
+    for (game in games) {
+        powerSum += game.red.max() * game.green.max() * game.blue.max()
+    }
+
+    println("Part 1: $powerSum")
 }
