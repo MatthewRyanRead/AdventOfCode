@@ -1,7 +1,6 @@
 import java.io.File
 import java.util.Scanner
 
-
 fun main() {
     val cards = mutableListOf<Pair<Int, Pair<Set<Int>, List<Int>>>>()
     Scanner(File("inputs/Day4.txt")).use {
@@ -29,28 +28,32 @@ fun main() {
 
 fun part1(cards : List<Pair<Int, Pair<Set<Int>, List<Int>>>>) {
     var score = 0L
-    for ((_, data) in cards) {
-        val (winners, actual) = data
-        val winCount = actual.filter { a -> winners.contains(a) }.size
+    processCards(cards) { _, winCount -> run {
         if (winCount > 0) {
             score += 1L shl (winCount - 1)
         }
-    }
+    }}
 
     println("Part 1: $score")
 }
 
 fun part2(cards : List<Pair<Int, Pair<Set<Int>, List<Int>>>>) {
     val countByCardId = cards.associate { c -> Pair(c.first, 1L) }.toMutableMap()
+    processCards(cards) { id, winCount -> run {
+        for (i in 1..winCount) {
+            countByCardId.merge(id + i, countByCardId[id]!!) { a, b -> a + b }
+        }
+    }}
+
+    println("Part 2: ${cards.mapNotNull { c -> countByCardId[c.first] }.sum()}")
+}
+
+fun processCards(cards : List<Pair<Int, Pair<Set<Int>, List<Int>>>>,
+                 scoreComputer : (id : Int, winCount : Int) -> Unit) {
     for ((id, data) in cards) {
         val (winners, actual) = data
         val winCount = actual.filter { a -> winners.contains(a) }.size
-        val cardCount = countByCardId[id]!!
 
-        for (i in 1..winCount) {
-            countByCardId.merge(id + i, cardCount) { a, b -> a + b }
-        }
+        scoreComputer(id, winCount)
     }
-
-    println("Part 2: ${cards.mapNotNull { c -> countByCardId[c.first] }.sum()}")
 }
