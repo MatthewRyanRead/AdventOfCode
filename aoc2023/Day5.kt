@@ -1,8 +1,9 @@
 import java.io.File
 import java.util.Scanner
 
-data class Range(val start : Long, val end : Long)
-data class RangeMap(val src : Range, val dst : Range)
+data class Range(val start: Long, val end: Long)
+
+data class RangeMap(val src: Range, val dst: Range)
 
 fun main() {
     var seedNums = listOf<Long>()
@@ -31,8 +32,8 @@ fun main() {
     println("Part 2: ${part2(seedRanges, allRangeMaps)}")
 }
 
-fun readRanges(input : Scanner) : List<RangeMap> {
-    val ranges : MutableList<RangeMap> = mutableListOf()
+fun readRanges(input: Scanner): List<RangeMap> {
+    val ranges: MutableList<RangeMap> = mutableListOf()
     while (input.hasNextLine()) {
         val line = input.nextLine().trim()
         if (line.isEmpty()) {
@@ -47,7 +48,10 @@ fun readRanges(input : Scanner) : List<RangeMap> {
     return ranges
 }
 
-fun part1(seedNums : List<Long>, allRangeMaps : List<List<RangeMap>>) : Long {
+fun part1(
+    seedNums: List<Long>,
+    allRangeMaps: List<List<RangeMap>>,
+): Long {
     val locations = mutableListOf<Long>()
 
     for (seedNum in seedNums) {
@@ -67,11 +71,14 @@ fun part1(seedNums : List<Long>, allRangeMaps : List<List<RangeMap>>) : Long {
     return locations.min()
 }
 
-fun part2(seedRanges : List<Range>, allRangeMaps : List<List<RangeMap>>) : Long {
-    val reverseRangeMaps = allRangeMaps.reversed().map {
-            maps -> maps.reversed().map {
-                    map -> RangeMap(src=map.dst, dst=map.src)
-            }.sortedBy { it.src.start }
+fun part2(
+    seedRanges: List<Range>,
+    allRangeMaps: List<List<RangeMap>>,
+): Long {
+    val reverseRangeMaps = allRangeMaps.reversed().map { maps ->
+        maps.reversed().map { map ->
+            RangeMap(src = map.dst, dst = map.src)
+        }.sortedBy { it.src.start }
     }
 
     // brute force baybeeee

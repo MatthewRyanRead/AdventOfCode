@@ -3,6 +3,7 @@ import java.util.Scanner
 import java.util.stream.IntStream
 
 data class Coord(val row: Int, val col: Int)
+
 data class CoordLine(val row: Int, val startCol: Int, val endCol: Int)
 
 fun main() {
@@ -47,7 +48,11 @@ fun getNumCoords(board: List<String>): Pair<List<CoordLine>, Set<Coord>> {
     return Pair(numCoords, symbolCoords)
 }
 
-fun part1(board: List<String>, numCoords: List<CoordLine>, symbolCoords: Set<Coord>) {
+fun part1(
+    board: List<String>,
+    numCoords: List<CoordLine>,
+    symbolCoords: Set<Coord>,
+) {
     val sum = numCoords.filter {
         for (y in (it.row - 1)..(it.row + 1)) {
             for (x in (it.startCol - 1)..(it.endCol + 1)) {
@@ -64,17 +69,19 @@ fun part1(board: List<String>, numCoords: List<CoordLine>, symbolCoords: Set<Coo
     println("Part 1: $sum")
 }
 
-fun part2(board: List<String>, numCoords: List<CoordLine>, symbolCoords: Set<Coord>) {
+fun part2(
+    board: List<String>,
+    numCoords: List<CoordLine>,
+    symbolCoords: Set<Coord>,
+) {
     val numById = numCoords.withIndex().associateBy(
-            { it.index },
-            { board[it.value.row].substring(it.value.startCol, it.value.endCol + 1).toLong() }
+        { it.index },
+        { board[it.value.row].substring(it.value.startCol, it.value.endCol + 1).toLong() },
     )
     val numIdByCoord = mutableMapOf<Coord, Int>()
     numCoords.forEachIndexed { id, coord ->
-        IntStream.rangeClosed(coord.startCol, coord.endCol)
-                .boxed()
-                .map { x -> Coord(coord.row, x) }
-                .forEach { numIdByCoord[it] = id }
+        IntStream.rangeClosed(coord.startCol, coord.endCol).boxed().map { x -> Coord(coord.row, x) }
+            .forEach { numIdByCoord[it] = id }
     }
 
     var ratioSum = 0L

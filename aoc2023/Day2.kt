@@ -1,7 +1,7 @@
 import java.io.File
 import java.util.Scanner
 
-data class Game(val id : Long, val red : List<Long>, val green : List<Long>, val blue : List<Long>)
+data class Game(val id: Long, val red: List<Long>, val green: List<Long>, val blue: List<Long>)
 
 fun main() {
     val games = mutableListOf<Game>()
@@ -45,14 +45,15 @@ fun main() {
     part2(games)
 }
 
-fun part1(games : List<Game>) {
+fun part1(games: List<Game>) {
     val (maxRed, maxGreen, maxBlue) = arrayOf(12L, 13L, 14L)
     var idSum = 0L
 
     for (game in games) {
-        if (game.red.all { r -> r <= maxRed }
-                && game.green.all { g -> g <= maxGreen }
-                && game.blue.all { b -> b <= maxBlue }) {
+        if (game.red.all { r -> r <= maxRed } &&
+            game.green.all { g -> g <= maxGreen } &&
+            game.blue.all { b -> b <= maxBlue }
+        ) {
             idSum += game.id
         }
     }
