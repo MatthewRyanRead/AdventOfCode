@@ -5,7 +5,7 @@ import kotlin.math.max
 
 data class Node(val id: String, val next: MutableList<Node>) {
     override fun toString(): String {
-        return "Node(id='$id', outgoing=${next.map { it.id }})"
+        return "Node(id='$id', next=${next.map { it.id }})"
     }
 
     override fun equals(other: Any?): Boolean {
