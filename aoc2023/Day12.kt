@@ -27,7 +27,7 @@ fun main() {
 
             part1Rows.add(SpringRow(row.trim('.'), groups))
 
-            val extendedRow = (1..5).map { row }.joinToString(separator = "?")
+            val extendedRow = (1..5).joinToString(separator = "?") { row }
             val extendedGroups = (1..5).flatMap { groups }
 
             part2Rows.add(SpringRow(extendedRow.trim('.'), extendedGroups))
