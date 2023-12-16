@@ -28,7 +28,7 @@ enum class Face(val char: Char, val rank: Int) {
     ;
 
     companion object ThisReallySeemsUnnecessaryKotlin {
-        val FACE_BY_CHAR = Face.entries.map { it.char to it }.toMap()
+        val FACE_BY_CHAR = entries.associateBy { it.char }
     }
 }
 
@@ -43,20 +43,17 @@ enum class HandType(val rank: Int) {
     ;
 }
 
-class Hand(val hand: String, val wager: Long) : Comparable<Hand> {
-    val type = typeOf()
-    val score = score()
+data class Hand(private val hand: String, val wager: Long) : Comparable<Hand> {
+    private val type = typeOf()
+    private val score = score()
 
     override fun compareTo(other: Hand) = compareValuesBy(this, other) { it.score }
-
-    override fun toString(): String {
-        return "Hand(hand='$hand', wager=$wager, type=$type, score=$score)"
-    }
 
     fun jokerize(): Hand {
         return Hand(this.hand.replace(JACK.char, JOKER.char), wager)
     }
 
+    @Suppress("kotlin:S3776")
     private fun typeOf(): HandType {
         val counts = this.hand.toCharArray().toTypedArray().groupingBy { it }.eachCount()
         return when (counts.values.max()) {
@@ -124,7 +121,7 @@ class Hand(val hand: String, val wager: Long) : Comparable<Hand> {
     }
 
     private fun score(): Long {
-        val cardsRank = hand.map { Face.FACE_BY_CHAR[it]!!.rank.toString().padStart(2, '0') }
+        val cardsRank = hand.map { Face.FACE_BY_CHAR[it]?.rank.toString().padStart(2, '0') }
             .joinToString(" ") { s -> s }
 
         return (type.rank.toString() + cardsRank.replace(" ", "")).toLong()
@@ -149,6 +146,7 @@ fun part1(hands: List<Hand>) {
     println("Part 1: $score")
 }
 
+@Suppress("kotlin:S125")
 fun part2(hands: List<Hand>) {
     val maybeJokerizedHands = hands.map {
         // problem says J cards ""can"" pretend to be whatever card is best, but it means ""must""
