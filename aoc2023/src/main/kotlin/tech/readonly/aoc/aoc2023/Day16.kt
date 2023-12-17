@@ -1,5 +1,12 @@
 ﻿package tech.readonly.aoc.aoc2023
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import tech.readonly.aoc.aoc2023.CaveElem.BACK_MIRROR
 import tech.readonly.aoc.aoc2023.CaveElem.BEAM_E
 import tech.readonly.aoc.aoc2023.CaveElem.BEAM_N
@@ -20,13 +27,6 @@ import tech.readonly.aoc.aoc2023.Direction.EAST
 import tech.readonly.aoc.aoc2023.Direction.NORTH
 import tech.readonly.aoc.aoc2023.Direction.SOUTH
 import tech.readonly.aoc.aoc2023.Direction.WEST
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.Scanner
 
@@ -95,7 +95,6 @@ data class Coords(val row: Int, val col: Int) {
 }
 
 fun main() {
-
     val cave = Scanner(File(ClassLoader.getSystemResource("inputs/Day16.txt").file)).use { scanner ->
         sequence { while (scanner.hasNextLine()) yield(scanner.nextLine().trim()) }.map {
             it.map { c -> ELEM_BY_CHAR[c]!!.v }.toMutableList()
@@ -108,7 +107,7 @@ fun main() {
     }
 }
 
-private suspend fun solve(
+private fun solve(
     cave: List<MutableList<Int>>,
     startCoords: Coords,
     startBeam: CaveElem,
@@ -159,14 +158,12 @@ private suspend fun part2(cave: List<MutableList<Int>>): Int {
     val maxRow = cave.lastIndex
     val maxCol = cave[0].lastIndex
 
-    val results = mutableListOf<Deferred<Int>>()
     val scope = CoroutineScope(Dispatchers.IO.limitedParallelism(10))
-
+    val results = mutableListOf<Deferred<Int>>()
     cave.indices.forEach { row ->
         results.add(scope.async { solve(copyCave(cave), Coords(row, 0), BEAM_E) })
         results.add(scope.async { solve(copyCave(cave), Coords(row, maxCol), BEAM_W) })
     }
-
     cave[0].indices.forEach { col ->
         results.add(scope.async { solve(copyCave(cave), Coords(maxRow, col), BEAM_N) })
         results.add(scope.async { solve(copyCave(cave), Coords(0, col), BEAM_S) })

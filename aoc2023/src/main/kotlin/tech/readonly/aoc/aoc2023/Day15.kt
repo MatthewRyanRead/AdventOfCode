@@ -55,7 +55,7 @@ data class Box(val id: Int) {
 }
 
 fun main() {
-    val commands = Scanner(File("inputs/Day15.txt")).use { scanner ->
+    val commands = Scanner(File(ClassLoader.getSystemResource("inputs/Day15.txt").file)).use { scanner ->
         scanner.nextLine().trim()
     }.split(',').map { LensCommand(it) }
 

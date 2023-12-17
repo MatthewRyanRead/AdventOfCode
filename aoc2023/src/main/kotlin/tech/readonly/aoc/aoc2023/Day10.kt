@@ -21,7 +21,7 @@ object Constants {
 
 fun main() {
     val input = mutableListOf<String>()
-    Scanner(File("inputs/Day10.txt")).use {
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day10.txt").file)).use {
         while (it.hasNextLine()) {
             input.add("." + it.nextLine().trim() + ".")
         }

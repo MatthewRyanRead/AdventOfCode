@@ -8,7 +8,7 @@ data class Game(val id: Long, val red: List<Long>, val green: List<Long>, val bl
 fun main() {
     val games = mutableListOf<Game>()
 
-    Scanner(File("inputs/Day2.txt")).use {
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day2.txt").file)).use {
         while (it.hasNextLine()) {
             val (gameStr, pullStr) = it.nextLine().trim().split(":")
             val id = gameStr.trim().split(" ")[1].toLong()

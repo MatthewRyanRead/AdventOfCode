@@ -11,7 +11,7 @@ fun main() {
     var seedNums = listOf<Long>()
     val allRangeMaps = mutableListOf<List<RangeMap>>()
 
-    Scanner(File("inputs/Day5.txt")).use {
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day5.txt").file)).use {
         seedNums = it.nextLine().trim().split(": ")[1].split(" ").map { s -> s.toLong() }
         it.nextLine()
 

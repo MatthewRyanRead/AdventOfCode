@@ -5,7 +5,7 @@ import java.util.Scanner
 
 fun main() {
     val input = mutableListOf<List<Long>>()
-    Scanner(File("inputs/Day9.txt")).use {
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day9.txt").file)).use {
         while (it.hasNextLine()) {
             input.add(it.nextLine().trim().split(' ').map { s -> s.toLong() })
         }

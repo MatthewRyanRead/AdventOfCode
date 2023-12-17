@@ -10,7 +10,7 @@ data class CoordLine(val row: Int, val startCol: Int, val endCol: Int)
 
 fun main() {
     val board = mutableListOf<String>()
-    Scanner(File("inputs/Day3.txt")).use {
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day3.txt").file)).use {
         while (it.hasNextLine()) {
             board.add(it.nextLine().trim())
         }

@@ -16,7 +16,7 @@ object Day13 {
 fun main() {
     val mirrors = mutableListOf<MutableList<String>>()
     mirrors.add(mutableListOf())
-    Scanner(File("inputs/Day13.txt")).use { scanner ->
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day13.txt").file)).use { scanner ->
         sequence { while (scanner.hasNextLine()) yield(scanner.nextLine().trim()) }.forEach {
             if (it.isEmpty()) {
                 mirrors.add(mutableListOf())

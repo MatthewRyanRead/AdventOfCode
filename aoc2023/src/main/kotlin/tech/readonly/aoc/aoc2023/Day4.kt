@@ -5,7 +5,7 @@ import java.util.Scanner
 
 fun main() {
     val cards = mutableListOf<Pair<Int, Pair<Set<Int>, List<Int>>>>()
-    Scanner(File("inputs/Day4.txt")).use {
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day4.txt").file)).use {
         while (it.hasNextLine()) {
             val (card, data) = it.nextLine().trim().split(":")
             val cardId = card.split(" ").filter { s -> s.isNotEmpty() }[1].toInt()

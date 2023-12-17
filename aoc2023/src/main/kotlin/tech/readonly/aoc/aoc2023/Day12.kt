@@ -15,7 +15,7 @@ data class SpringRow(val str: String, val groups: List<Int>) {
 fun main() {
     val part1Rows = mutableListOf<SpringRow>()
     val part2Rows = mutableListOf<SpringRow>()
-    Scanner(File("inputs/Day12.txt")).use { scanner ->
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day12.txt").file)).use { scanner ->
         while (scanner.hasNextLine()) {
             var (row, groupsStr) = scanner.nextLine().trim().split(' ')
             val groups = groupsStr.split(',').map { it.toInt() }

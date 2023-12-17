@@ -132,7 +132,7 @@ data class Hand(private val hand: String, val wager: Long) : Comparable<Hand> {
 
 fun main() {
     val hands = mutableListOf<Hand>()
-    Scanner(File("inputs/Day7.txt")).use {
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day7.txt").file)).use {
         while (it.hasNextLine()) {
             val (hand, wagerStr) = it.nextLine().trim().split(" ")
             hands.add(Hand(hand, wagerStr.toLong()))

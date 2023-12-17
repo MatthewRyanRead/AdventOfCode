@@ -10,7 +10,7 @@ data class Race(val id: Int, val maxTime: Long, val dist: Long)
 
 fun main() {
     val races = mutableListOf<Race>()
-    Scanner(File("inputs/Day6.txt")).use {
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day6.txt").file)).use {
         val times = it.nextLine().trim().split(" ").map { s -> s.toLong() }
         val distances = it.nextLine().trim().split(" ").map { s -> s.toLong() }
 

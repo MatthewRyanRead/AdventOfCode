@@ -41,7 +41,7 @@ data class Grid(val content: List<MutableList<Elem>>) : Iterable<MutableList<Ele
 }
 
 fun main() {
-    val grid = Grid(Scanner(File("inputs/Day14.txt")).use { scanner ->
+    val grid = Grid(Scanner(File(ClassLoader.getSystemResource("inputs/Day14.txt").file)).use { scanner ->
         sequence { while (scanner.hasNextLine()) yield(scanner.nextLine().trim()) }.map {
             it.map { c -> ELEM_BY_CHAR[c]!! }.toMutableList()
         }.toMutableList()

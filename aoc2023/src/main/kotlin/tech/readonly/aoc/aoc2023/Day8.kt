@@ -26,7 +26,7 @@ data class Node(val id: String, val next: MutableList<Node>) {
 fun main() {
     var instructions: String
     val nodesById: MutableMap<String, Node> = mutableMapOf()
-    Scanner(File("inputs/Day8.txt")).use {
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day8.txt").file)).use {
         instructions = it.nextLine()
         it.nextLine()
 

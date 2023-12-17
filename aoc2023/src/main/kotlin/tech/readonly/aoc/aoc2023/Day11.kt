@@ -17,7 +17,7 @@ data class Galaxy(var x: Long, var y: Long) : Comparable<Galaxy> {
 
 fun main() {
     val galaxies = mutableListOf<Galaxy>()
-    Scanner(File("inputs/Day11.txt")).use {
+    Scanner(File(ClassLoader.getSystemResource("inputs/Day11.txt").file)).use {
         var y = 0L
         while (it.hasNextLine()) {
             val line = it.nextLine().trim()
