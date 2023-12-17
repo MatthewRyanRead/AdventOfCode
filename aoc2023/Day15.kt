@@ -58,7 +58,7 @@ fun main() {
     }.split(',').map { LensCommand(it) }
 
     println("Part 1: ${part1(commands)}")
-    println("Part 1: ${part2(commands)}")
+    println("Part 2: ${part2(commands)}")
 }
 
 private fun part1(commands: List<LensCommand>): Int {
