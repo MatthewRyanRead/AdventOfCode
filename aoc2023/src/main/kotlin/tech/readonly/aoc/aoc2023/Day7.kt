@@ -1,12 +1,14 @@
-﻿import Face.JACK
-import Face.JOKER
-import HandType.FIVE_OF_A_KIND
-import HandType.FOUR_OF_A_KIND
-import HandType.FULL_HOUSE
-import HandType.HIGH_CARD
-import HandType.ONE_PAIR
-import HandType.THREE_OF_A_KIND
-import HandType.TWO_PAIR
+﻿package tech.readonly.aoc.aoc2023
+
+import tech.readonly.aoc.aoc2023.Face.JACK
+import tech.readonly.aoc.aoc2023.Face.JOKER
+import tech.readonly.aoc.aoc2023.HandType.FIVE_OF_A_KIND
+import tech.readonly.aoc.aoc2023.HandType.FOUR_OF_A_KIND
+import tech.readonly.aoc.aoc2023.HandType.FULL_HOUSE
+import tech.readonly.aoc.aoc2023.HandType.HIGH_CARD
+import tech.readonly.aoc.aoc2023.HandType.ONE_PAIR
+import tech.readonly.aoc.aoc2023.HandType.THREE_OF_A_KIND
+import tech.readonly.aoc.aoc2023.HandType.TWO_PAIR
 import java.io.File
 import java.util.Scanner
 

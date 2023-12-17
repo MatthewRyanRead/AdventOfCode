@@ -1,23 +1,25 @@
-﻿import CaveElem.BACK_MIRROR
-import CaveElem.BEAM_E
-import CaveElem.BEAM_N
-import CaveElem.BEAM_S
-import CaveElem.BEAM_W
-import CaveElem.EMPTY
-import CaveElem.FRONT_MIRROR
-import CaveElem.HORI_SPLIT
-import CaveElem.VERT_SPLIT
-import Day16.ALTERING_ELEMS
-import Day16.BEAMS
-import Day16.BEAM_BY_DIR
-import Day16.DIRS_BY_DIR_AND_ELEM
-import Day16.DIR_BY_BEAM
-import Day16.ELEM_BY_CHAR
-import Day16.TRANSLATION_BY_DIR
-import Direction.EAST
-import Direction.NORTH
-import Direction.SOUTH
-import Direction.WEST
+﻿package tech.readonly.aoc.aoc2023
+
+import tech.readonly.aoc.aoc2023.CaveElem.BACK_MIRROR
+import tech.readonly.aoc.aoc2023.CaveElem.BEAM_E
+import tech.readonly.aoc.aoc2023.CaveElem.BEAM_N
+import tech.readonly.aoc.aoc2023.CaveElem.BEAM_S
+import tech.readonly.aoc.aoc2023.CaveElem.BEAM_W
+import tech.readonly.aoc.aoc2023.CaveElem.EMPTY
+import tech.readonly.aoc.aoc2023.CaveElem.FRONT_MIRROR
+import tech.readonly.aoc.aoc2023.CaveElem.HORI_SPLIT
+import tech.readonly.aoc.aoc2023.CaveElem.VERT_SPLIT
+import tech.readonly.aoc.aoc2023.Day16.ALTERING_ELEMS
+import tech.readonly.aoc.aoc2023.Day16.BEAMS
+import tech.readonly.aoc.aoc2023.Day16.BEAM_BY_DIR
+import tech.readonly.aoc.aoc2023.Day16.DIRS_BY_DIR_AND_ELEM
+import tech.readonly.aoc.aoc2023.Day16.DIR_BY_BEAM
+import tech.readonly.aoc.aoc2023.Day16.ELEM_BY_CHAR
+import tech.readonly.aoc.aoc2023.Day16.TRANSLATION_BY_DIR
+import tech.readonly.aoc.aoc2023.Direction.EAST
+import tech.readonly.aoc.aoc2023.Direction.NORTH
+import tech.readonly.aoc.aoc2023.Direction.SOUTH
+import tech.readonly.aoc.aoc2023.Direction.WEST
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -93,7 +95,8 @@ data class Coords(val row: Int, val col: Int) {
 }
 
 fun main() {
-    val cave = Scanner(File("inputs/Day16.txt")).use { scanner ->
+
+    val cave = Scanner(File(ClassLoader.getSystemResource("inputs/Day16.txt").file)).use { scanner ->
         sequence { while (scanner.hasNextLine()) yield(scanner.nextLine().trim()) }.map {
             it.map { c -> ELEM_BY_CHAR[c]!!.v }.toMutableList()
         }.toList()

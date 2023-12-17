@@ -1,7 +1,7 @@
-﻿import java.io.File
+﻿package tech.readonly.aoc.aoc2023
+
+import java.io.File
 import java.util.Scanner
-import java.util.function.Predicate
-import kotlin.math.max
 
 fun main() {
     val input = mutableListOf<List<Long>>()

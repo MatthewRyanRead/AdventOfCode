@@ -1,5 +1,7 @@
-﻿import SpringRow.Companion.DFS_GREEDY
-import SpringRow.Companion.DFS_SKIP
+﻿package tech.readonly.aoc.aoc2023
+
+import tech.readonly.aoc.aoc2023.SpringRow.Companion.DFS_GREEDY
+import tech.readonly.aoc.aoc2023.SpringRow.Companion.DFS_SKIP
 import java.io.File
 import java.util.Scanner
 

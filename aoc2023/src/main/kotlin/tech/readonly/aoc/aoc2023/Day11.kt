@@ -1,4 +1,6 @@
-﻿import java.io.File
+﻿package tech.readonly.aoc.aoc2023
+
+import java.io.File
 import java.util.Scanner
 import kotlin.math.abs
 import kotlin.math.max

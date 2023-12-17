@@ -1,4 +1,6 @@
-﻿import Constants.ALL_TRANSFORMS
+﻿package tech.readonly.aoc.aoc2023
+
+import tech.readonly.aoc.aoc2023.Constants.ALL_TRANSFORMS
 import java.io.File
 import java.util.Scanner
 
@@ -114,7 +116,8 @@ fun part2(pipeland: List<List<Pipe>>): Int {
         colorByPipe[pipe] = currColor
         uncolored.remove(pipe)
 
-        currPipes.addAll(neighbours(
+        currPipes.addAll(
+            neighbours(
             pipe, pipeland, true, transforms = ALL_TRANSFORMS
         ).filter { p -> !colorByPipe.contains(p) })
     }
@@ -137,7 +140,8 @@ fun part2(pipeland: List<List<Pipe>>): Int {
 
         val boundingNeighbours = mutableSetOf<Pipe>()
         for (pipe in group) {
-            boundingNeighbours.addAll(neighbours(
+            boundingNeighbours.addAll(
+                neighbours(
                 pipe, pipeland, true, transforms = ALL_TRANSFORMS
             ).filter { colorByPipe[it] != color })
         }

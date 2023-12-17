@@ -1,6 +1,8 @@
-﻿import Day13.BYTE_BY_ROW
-import Day13.CHAR_SWAP
-import Day13.LOG2
+﻿package tech.readonly.aoc.aoc2023
+
+import tech.readonly.aoc.aoc2023.Day13.BYTE_BY_ROW
+import tech.readonly.aoc.aoc2023.Day13.CHAR_SWAP
+import tech.readonly.aoc.aoc2023.Day13.LOG2
 import java.io.File
 import java.util.Scanner
 

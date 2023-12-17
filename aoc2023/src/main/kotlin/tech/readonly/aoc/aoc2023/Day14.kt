@@ -1,6 +1,8 @@
-﻿import Day14.ELEM_BY_CHAR
-import Day14.Elem
-import Day14.GRID_BY_ITERATION_SEEN
+﻿package tech.readonly.aoc.aoc2023
+
+import tech.readonly.aoc.aoc2023.Day14.ELEM_BY_CHAR
+import tech.readonly.aoc.aoc2023.Day14.Elem
+import tech.readonly.aoc.aoc2023.Day14.GRID_BY_ITERATION_SEEN
 import java.io.File
 import java.util.Scanner
 import java.util.function.Consumer
