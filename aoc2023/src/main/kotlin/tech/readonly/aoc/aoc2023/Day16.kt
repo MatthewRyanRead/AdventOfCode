@@ -23,10 +23,10 @@ import tech.readonly.aoc.aoc2023.Day16.DIRS_BY_DIR_AND_ELEM
 import tech.readonly.aoc.aoc2023.Day16.DIR_BY_BEAM
 import tech.readonly.aoc.aoc2023.Day16.ELEM_BY_CHAR
 import tech.readonly.aoc.aoc2023.Day16.TRANSLATION_BY_DIR
-import tech.readonly.aoc.aoc2023.Direction.EAST
-import tech.readonly.aoc.aoc2023.Direction.NORTH
-import tech.readonly.aoc.aoc2023.Direction.SOUTH
-import tech.readonly.aoc.aoc2023.Direction.WEST
+import tech.readonly.aoc.aoc2023.util.Direction.EAST
+import tech.readonly.aoc.aoc2023.util.Direction.NORTH
+import tech.readonly.aoc.aoc2023.util.Direction.SOUTH
+import tech.readonly.aoc.aoc2023.util.Direction.WEST
 import java.io.File
 import java.util.Scanner
 
@@ -40,14 +40,6 @@ enum class CaveElem(val c: Char, val v: Int) {
     BEAM_E('>', 32),
     BEAM_S('v', 64),
     BEAM_W('<', 128),
-    ;
-}
-
-enum class Direction {
-    NORTH,
-    EAST,
-    SOUTH,
-    WEST,
     ;
 }
 
