@@ -18,9 +18,15 @@ import Direction.EAST
 import Direction.NORTH
 import Direction.SOUTH
 import Direction.WEST
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.Scanner
-import kotlin.math.max
 
 enum class CaveElem(val c: Char, val v: Int) {
     EMPTY('.', 0),
@@ -93,11 +99,17 @@ fun main() {
         }.toList()
     }
 
-    println("Part 1: ${solve(copyCave(cave), Coords(0, 0), BEAM_E)}")
-    println("Part 2: ${part2(cave)}")
+    runBlocking {
+        println("Part 1: ${solve(copyCave(cave), Coords(0, 0), BEAM_E)}")
+        println("Part 2: ${part2(cave)}")
+    }
 }
 
-private fun solve(cave: List<MutableList<Int>>, startCoords: Coords, startBeam: CaveElem): Int {
+private suspend fun solve(
+    cave: List<MutableList<Int>>,
+    startCoords: Coords,
+    startBeam: CaveElem,
+): Int {
     val beamCoords = ArrayDeque<Coords>()
     beamCoords.addLast(startCoords)
     val energized = mutableSetOf(startCoords)
@@ -139,21 +151,25 @@ private fun solve(cave: List<MutableList<Int>>, startCoords: Coords, startBeam: 
     return energized.size
 }
 
-private fun part2(cave: List<MutableList<Int>>): Int {
+@OptIn(ExperimentalCoroutinesApi::class)
+private suspend fun part2(cave: List<MutableList<Int>>): Int {
     val maxRow = cave.lastIndex
     val maxCol = cave[0].lastIndex
 
-    return max(cave.indices.maxOf { row ->
-        max(
-            solve(copyCave(cave), Coords(row, 0), BEAM_E),
-            solve(copyCave(cave), Coords(row, maxCol), BEAM_W)
-        )
-    }, cave[0].indices.maxOf { col ->
-        max(
-            solve(copyCave(cave), Coords(maxRow, col), BEAM_N),
-            solve(copyCave(cave), Coords(0, col), BEAM_S)
-        )
-    })
+    val results = mutableListOf<Deferred<Int>>()
+    val scope = CoroutineScope(Dispatchers.IO.limitedParallelism(10))
+
+    cave.indices.forEach { row ->
+        results.add(scope.async { solve(copyCave(cave), Coords(row, 0), BEAM_E) })
+        results.add(scope.async { solve(copyCave(cave), Coords(row, maxCol), BEAM_W) })
+    }
+
+    cave[0].indices.forEach { col ->
+        results.add(scope.async { solve(copyCave(cave), Coords(maxRow, col), BEAM_N) })
+        results.add(scope.async { solve(copyCave(cave), Coords(0, col), BEAM_S) })
+    }
+
+    return results.awaitAll().max()
 }
 
 private fun move(
