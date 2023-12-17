@@ -30,7 +30,7 @@ fun main() {
     println("Part 2: ${solve(listOf(part2Race))}")
 }
 
-fun solve(races: List<Race>): Long {
+private fun solve(races: List<Race>): Long {
     var score = 1L
 
     for (race in races) {

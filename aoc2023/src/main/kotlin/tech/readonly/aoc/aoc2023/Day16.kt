@@ -22,7 +22,8 @@ import tech.readonly.aoc.aoc2023.Day16.BEAM_BY_DIR
 import tech.readonly.aoc.aoc2023.Day16.DIRS_BY_DIR_AND_ELEM
 import tech.readonly.aoc.aoc2023.Day16.DIR_BY_BEAM
 import tech.readonly.aoc.aoc2023.Day16.ELEM_BY_CHAR
-import tech.readonly.aoc.aoc2023.Day16.TRANSLATION_BY_DIR
+import tech.readonly.aoc.aoc2023.util.Coords
+import tech.readonly.aoc.aoc2023.util.Direction.Constants.TRANSLATION_BY_DIR
 import tech.readonly.aoc.aoc2023.util.Direction.EAST
 import tech.readonly.aoc.aoc2023.util.Direction.NORTH
 import tech.readonly.aoc.aoc2023.util.Direction.SOUTH
@@ -72,18 +73,6 @@ object Day16 {
         Pair(Pair(SOUTH, FRONT_MIRROR), listOf(WEST)),
         Pair(Pair(WEST, FRONT_MIRROR), listOf(SOUTH)),
     )
-    val TRANSLATION_BY_DIR = mapOf(
-        Pair(NORTH, Coords(-1, 0)),
-        Pair(EAST, Coords(0, 1)),
-        Pair(SOUTH, Coords(1, 0)),
-        Pair(WEST, Coords(0, -1)),
-    )
-}
-
-data class Coords(val row: Int, val col: Int) {
-    operator fun plus(other: Coords): Coords {
-        return Coords(row + other.row, col + other.col)
-    }
 }
 
 fun main() {
@@ -176,7 +165,7 @@ private fun move(
     return newDirs.mapNotNull { dir ->
         val translation = TRANSLATION_BY_DIR[dir]!!
         val newCoords = coords + translation
-        if (inbounds(cave, newCoords)) {
+        if (newCoords.inbounds(cave)) {
             val newSpot = cave[newCoords.row][newCoords.col]
             val newBeam = BEAM_BY_DIR[dir]!!.v
 
@@ -190,10 +179,6 @@ private fun move(
             null
         }
     }
-}
-
-private fun inbounds(cave: List<MutableList<Int>>, coords: Coords): Boolean {
-    return coords.row in cave.indices && coords.col in cave[0].indices
 }
 
 private fun caveToStr(cave: List<MutableList<Int>>): String {

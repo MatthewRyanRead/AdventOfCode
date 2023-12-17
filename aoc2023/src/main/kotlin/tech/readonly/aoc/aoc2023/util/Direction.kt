@@ -7,12 +7,21 @@ enum class Direction(v: Int) {
     WEST(4),
     ;
 
-    companion object {
+    companion object Constants {
         val OPPOSITE_BY_DIR = mapOf(
             Pair(NORTH, SOUTH),
             Pair(EAST, WEST),
             Pair(SOUTH, NORTH),
-            Pair(NORTH, SOUTH),
+            Pair(WEST, EAST),
         )
+
+        val TRANSLATION_BY_DIR = mapOf(
+            Pair(NORTH, Coords(-1, 0)),
+            Pair(EAST, Coords(0, 1)),
+            Pair(SOUTH, Coords(1, 0)),
+            Pair(WEST, Coords(0, -1)),
+        )
+
+        val DIR_BY_TRANSLATION = TRANSLATION_BY_DIR.map { (k, v) -> v to k }.toMap()
     }
 }

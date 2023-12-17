@@ -1,12 +1,11 @@
 package tech.readonly.aoc.aoc2023
 
+import tech.readonly.aoc.aoc2023.util.Coords
 import java.io.File
 import java.util.Scanner
 import java.util.stream.IntStream
 
-data class Coord(val row: Int, val col: Int)
-
-data class CoordLine(val row: Int, val startCol: Int, val endCol: Int)
+data class VertLine(val row: Int, val startCol: Int, val endCol: Int)
 
 fun main() {
     val board = mutableListOf<String>()
@@ -22,9 +21,9 @@ fun main() {
     part2(board, numCoords, symbolCoords)
 }
 
-fun getNumCoords(board: List<String>): Pair<List<CoordLine>, Set<Coord>> {
-    val numCoords = mutableListOf<CoordLine>()
-    val symbolCoords = mutableSetOf<Coord>()
+fun getNumCoords(board: List<String>): Pair<List<VertLine>, Set<Coords>> {
+    val lines = mutableListOf<VertLine>()
+    val symbolCoords = mutableSetOf<Coords>()
 
     board.forEachIndexed { y, row ->
         var x = 0
@@ -37,9 +36,9 @@ fun getNumCoords(board: List<String>): Pair<List<CoordLine>, Set<Coord>> {
                     x++
                 }
 
-                numCoords.add(CoordLine(y, startCol, endCol))
+                lines.add(VertLine(y, startCol, endCol))
             } else if (row[x] != '.') {
-                symbolCoords.add(Coord(y, x))
+                symbolCoords.add(Coords(y, x))
                 x++
             } else {
                 x++
@@ -47,18 +46,18 @@ fun getNumCoords(board: List<String>): Pair<List<CoordLine>, Set<Coord>> {
         }
     }
 
-    return Pair(numCoords, symbolCoords)
+    return Pair(lines, symbolCoords)
 }
 
 fun part1(
     board: List<String>,
-    numCoords: List<CoordLine>,
-    symbolCoords: Set<Coord>,
+    lines: List<VertLine>,
+    symbolCoords: Set<Coords>,
 ) {
-    val sum = numCoords.filter {
+    val sum = lines.filter {
         for (y in (it.row - 1)..(it.row + 1)) {
             for (x in (it.startCol - 1)..(it.endCol + 1)) {
-                if (Coord(y, x) in symbolCoords) {
+                if (Coords(y, x) in symbolCoords) {
                     return@filter true
                 }
             }
@@ -73,16 +72,16 @@ fun part1(
 
 fun part2(
     board: List<String>,
-    numCoords: List<CoordLine>,
-    symbolCoords: Set<Coord>,
+    lines: List<VertLine>,
+    symbolCoords: Set<Coords>,
 ) {
-    val numById = numCoords.withIndex().associateBy(
+    val numById = lines.withIndex().associateBy(
         { it.index },
         { board[it.value.row].substring(it.value.startCol, it.value.endCol + 1).toLong() },
     )
-    val numIdByCoord = mutableMapOf<Coord, Int>()
-    numCoords.forEachIndexed { id, coord ->
-        IntStream.rangeClosed(coord.startCol, coord.endCol).boxed().map { x -> Coord(coord.row, x) }
+    val numIdByCoord = mutableMapOf<Coords, Int>()
+    lines.forEachIndexed { id, coord ->
+        IntStream.rangeClosed(coord.startCol, coord.endCol).boxed().map { x -> Coords(coord.row, x) }
             .forEach { numIdByCoord[it] = id }
     }
 
@@ -95,7 +94,7 @@ fun part2(
         val nearbyNumIds = mutableSetOf<Int>()
         for (y in (symbolCoord.row - 1)..(symbolCoord.row + 1)) {
             for (x in (symbolCoord.col - 1)..(symbolCoord.col + 1)) {
-                val nearbyCoord = Coord(y, x)
+                val nearbyCoord = Coords(y, x)
                 if (nearbyCoord in numIdByCoord.keys) {
                     nearbyNumIds.add(numIdByCoord[nearbyCoord]!!)
                 }

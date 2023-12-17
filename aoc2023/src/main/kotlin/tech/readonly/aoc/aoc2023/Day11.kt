@@ -1,33 +1,23 @@
 ﻿package tech.readonly.aoc.aoc2023
 
+import tech.readonly.aoc.aoc2023.util.Coords
 import java.io.File
 import java.util.Scanner
-import kotlin.math.abs
 import kotlin.math.max
 
-data class Galaxy(var x: Long, var y: Long) : Comparable<Galaxy> {
-    companion object Constants {
-        val COMPARATOR = Comparator.comparing(Galaxy::x).thenComparing(Galaxy::y)!!
-    }
-
-    override fun compareTo(other: Galaxy): Int {
-        return COMPARATOR.compare(this, other)
-    }
-}
-
 fun main() {
-    val galaxies = mutableListOf<Galaxy>()
+    val galaxies = mutableListOf<Coords>()
     Scanner(File(ClassLoader.getSystemResource("inputs/Day11.txt").file)).use {
-        var y = 0L
+        var row = 0
         while (it.hasNextLine()) {
             val line = it.nextLine().trim()
-            for (x in line.indices) {
-                if (line[x] == '#') {
-                    galaxies.add(Galaxy(y, x.toLong()))
+            for (col in line.indices) {
+                if (line[col] == '#') {
+                    galaxies.add(Coords(row, col))
                 }
             }
 
-            y++
+            row++
         }
     }
 
@@ -35,7 +25,7 @@ fun main() {
     println("Part 2: ${solve(expand(galaxies, 1000000 - 1))}")
 }
 
-fun solve(galaxies: List<Galaxy>): Long {
+private fun solve(galaxies: List<Coords>): Long {
     var totalDistance = 0L
     for (galaxy1 in galaxies) {
         for (galaxy2 in galaxies) {
@@ -43,39 +33,40 @@ fun solve(galaxies: List<Galaxy>): Long {
                 continue
             }
 
-            totalDistance += abs(galaxy1.x - galaxy2.x) + abs(galaxy1.y - galaxy2.y)
+            totalDistance += galaxy1.manhattanDist(galaxy2)
         }
     }
 
     return totalDistance
 }
 
-fun expand(input: List<Galaxy>, byAdditional: Long = 1L): List<Galaxy> {
-    val galaxies = input.map { Galaxy(it.x, it.y) }
-    val galaxiesSortedByX = galaxies.sortedBy { it.x }
-    val xOffsets = mutableListOf(0L)
-    for (x in 1..<galaxiesSortedByX.size) {
-        val next = galaxiesSortedByX[x]
-        val prev = galaxiesSortedByX[x - 1]
-        xOffsets.add(max(0, next.x - prev.x - 1) * byAdditional)
+fun expand(input: List<Coords>, byAdditional: Int = 1): List<Coords> {
+    val galaxies = input.map { Coords(it.row, it.col) }
+
+    val galaxiesSortedByCol = galaxies.sortedBy { it.col }
+    val colOffsets = mutableListOf(0)
+    for (x in 1..<galaxiesSortedByCol.size) {
+        val next = galaxiesSortedByCol[x]
+        val prev = galaxiesSortedByCol[x - 1]
+        colOffsets.add(max(0, next.col - prev.col - 1) * byAdditional)
     }
-    var totalXOffset = 0L
-    for (x in 1..<galaxiesSortedByX.size) {
-        totalXOffset += xOffsets[x]
-        galaxiesSortedByX[x].x += totalXOffset
+    var totalColOffset = 0
+    for (col in 1..<galaxiesSortedByCol.size) {
+        totalColOffset += colOffsets[col]
+        galaxiesSortedByCol[col].col += totalColOffset
     }
 
-    val galaxiesSortedByY = galaxies.sortedBy { it.y }
-    val yOffsets = mutableListOf(0L)
-    for (y in 1..<galaxiesSortedByY.size) {
-        val next = galaxiesSortedByY[y]
-        val prev = galaxiesSortedByY[y - 1]
-        yOffsets.add(max(0, next.y - prev.y - 1) * byAdditional)
+    val galaxiesSortedByRow = galaxies.sortedBy { it.row }
+    val rowOffsets = mutableListOf(0)
+    for (row in 1..<galaxiesSortedByRow.size) {
+        val next = galaxiesSortedByRow[row]
+        val prev = galaxiesSortedByRow[row - 1]
+        rowOffsets.add(max(0, next.row - prev.row - 1) * byAdditional)
     }
-    var totalYOffset = 0L
-    for (y in 1..<galaxiesSortedByY.size) {
-        totalYOffset += yOffsets[y]
-        galaxiesSortedByY[y].y += totalYOffset
+    var totalRowOffset = 0
+    for (row in 1..<galaxiesSortedByRow.size) {
+        totalRowOffset += rowOffsets[row]
+        galaxiesSortedByRow[row].row += totalRowOffset
     }
 
     return galaxies
