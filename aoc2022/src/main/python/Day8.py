@@ -78,15 +78,15 @@ for x in range(0, width):
         make_visible(trees[y][x], south_side, north_side)
 
 score_part1 = 0
-for y in range(height):
-    for x in range(width):
-        tree = trees[y][x]
-        if len(tree.visible) > 0:
-            print(str(tree.height), end='')
-            score_part1 += 1
-        else:
-            print('.', end='')
-    print()
+#for y in range(height):
+#    for x in range(width):
+#        tree = trees[y][x]
+#        if len(tree.visible) > 0:
+#            print(str(tree.height), end='')
+#            score_part1 += 1
+#        else:
+#            print('.', end='')
+#    print()
 
 print('\nPart 1:', score_part1)
 

@@ -98,10 +98,10 @@ for pos in tail_visited:
 # trim the grid
 grid = [row[min_x : max_x] for row in grid[min_y : max_y]]
 
-for row in grid:
-    for value in row:
-        print(value, end='')
-    print()
+#for row in grid:
+#    for value in row:
+#        print(value, end='')
+#    print()
 
 print('\nPart 1:', len(second_visited))
 print('Part 2:', len(tail_visited))
