@@ -9,7 +9,7 @@
     </parent>
 
     <artifactId>aoc2023</artifactId>
-    <name>AdventOfCode Parent POM</name>
+    <name>AdventOfCode 2023 Solutions</name>
 
     <dependencies>
         <dependency>

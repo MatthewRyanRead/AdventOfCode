@@ -9,6 +9,8 @@
     <version>1.0.0</version>
 
     <modules>
+        <module>aoc2021</module>
+        <module>aoc2022</module>
         <module>aoc2023</module>
     </modules>
 
@@ -20,8 +22,15 @@
     </scm>
 
     <properties>
+        <encoding>UTF-8</encoding>
+        <java.version>21</java.version>
         <kotlin.version>1.9.21</kotlin.version>
         <kotlinx.version>1.7.3</kotlinx.version>
+
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
     </properties>
 
     <dependencyManagement>
@@ -68,6 +77,18 @@
                     </executions>
                     <configuration>
                         <jvmTarget>21</jvmTarget>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                    <configuration>
+                        <compilerArgs>
+                            <arg>--add-exports</arg>
+                            <arg>jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
+                        </compilerArgs>
                     </configuration>
                 </plugin>
             </plugins>
