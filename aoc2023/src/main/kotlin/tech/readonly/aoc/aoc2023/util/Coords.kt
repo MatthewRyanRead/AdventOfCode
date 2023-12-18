@@ -16,7 +16,19 @@ data class Coords(var row: Int, var col: Int) : Comparable<Coords> {
         return Coords(row + other.row, col + other.col)
     }
 
+    operator fun times(multiplier: Int): Coords {
+        return Coords(row * multiplier, col * multiplier)
+    }
+
     fun <U> inbounds(grid: List<List<U>>): Boolean {
+        if (grid.isEmpty() || grid[0].isEmpty()) {
+            error("Grid is not valid")
+        }
+
+        return row in grid.indices && col in grid[0].indices
+    }
+
+    fun inbounds(grid: Array<CharArray>): Boolean {
         if (grid.isEmpty() || grid[0].isEmpty()) {
             error("Grid is not valid")
         }
