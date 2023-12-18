@@ -22,19 +22,38 @@
     </scm>
 
     <properties>
+        <!-- project & platform properties -->
+
         <encoding>UTF-8</encoding>
         <java.version>21</java.version>
         <kotlin.version>1.9.21</kotlin.version>
         <kotlinx.version>1.7.3</kotlinx.version>
-
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
+
+        <!-- plugin versions -->
+
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+
+        <!-- dependency versions -->
+        <jsr305.version>3.0.2</jsr305.version>
+        <maven-jdk-tools-wrapper.version>0.1</maven-jdk-tools-wrapper.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>com.github.olivergondza</groupId>
+                <artifactId>maven-jdk-tools-wrapper</artifactId>
+                <version>${maven-jdk-tools-wrapper.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${jsr305.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-bom</artifactId>
@@ -59,6 +78,9 @@
                     <groupId>org.jetbrains.kotlin</groupId>
                     <artifactId>kotlin-maven-plugin</artifactId>
                     <version>${kotlin.version}</version>
+                    <configuration>
+                        <jvmTarget>${java.version}</jvmTarget>
+                    </configuration>
                     <executions>
                         <execution>
                             <id>compile</id>
@@ -75,15 +97,12 @@
                             </goals>
                         </execution>
                     </executions>
-                    <configuration>
-                        <jvmTarget>21</jvmTarget>
-                    </configuration>
                 </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.11.0</version>
+                    <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <compilerArgs>
                             <arg>--add-exports</arg>
@@ -93,5 +112,14 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+
+        <plugins>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <!--suppress ALL; IntelliJ's understanding of Maven is bad and it should feel bad -->
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+            </plugin>
+        </plugins>
     </build>
 </project>

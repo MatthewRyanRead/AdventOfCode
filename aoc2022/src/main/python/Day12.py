@@ -10,7 +10,8 @@ input = response.raw.read().decode('utf-8').splitlines()
 
 height = len(input)
 width = len(input[0])
-distances = [[sys.maxsize] * width for y in range(height)]
+distances = [[sys.maxsize] * width for _ in range(height)]
+
 
 class Node:
     def __init__(self, x, y, val):
@@ -26,7 +27,8 @@ class Node:
     def __repr__(self):
         return '(' + str(self.x) + ', ' + str(self.y) + ') => ' + str(self.val)
 
-nodes = [[None] * width for y in range(height)]
+
+nodes = [[None] * width for _ in range(height)]
 start = None
 end = None
 
@@ -57,7 +59,8 @@ for y, row in enumerate(nodes):
         if y > 0 and nodes[y - 1][x].val >= cutoff:
             curr_node.neighbours.add(nodes[y - 1][x])
 
-def elfsger_djikstra(from_node, all_nodes):
+
+def elfsger_djikstra(all_nodes):
     global distances
 
     priority_queue = sum(all_nodes, [])
@@ -71,10 +74,11 @@ def elfsger_djikstra(from_node, all_nodes):
             curr_distance = distances[neighbour.y][neighbour.x]
             new_distance = distances[min_node.y][min_node.x] + 1
 
-            if (new_distance < curr_distance):
+            if new_distance < curr_distance:
                 distances[neighbour.y][neighbour.x] = new_distance
 
-elfsger_djikstra(end, nodes)
+
+elfsger_djikstra(nodes)
 distance_from_start = distances[start[1]][start[0]]
 
 print('Part 1:', distance_from_start)

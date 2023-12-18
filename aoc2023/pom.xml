@@ -29,14 +29,4 @@
             <artifactId>kotlinx-coroutines-core-jvm</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-maven-plugin</artifactId>
-                <version>${kotlin.version}</version>
-            </plugin>
-        </plugins>
-    </build>
 </project>

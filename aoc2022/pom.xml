@@ -10,7 +10,4 @@
 
     <artifactId>aoc2022</artifactId>
     <name>AdventOfCode 2022 Solutions</name>
-
-    <dependencies>
-    </dependencies>
 </project>
