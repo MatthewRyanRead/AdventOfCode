@@ -6,7 +6,7 @@ import java.util.Scanner
 import kotlin.math.max
 
 fun main() {
-    val galaxies = mutableListOf<Coords>()
+    val galaxies = mutableListOf<Coords<Int>>()
     Scanner(File(ClassLoader.getSystemResource("inputs/Day11.txt").file)).use {
         var row = 0
         while (it.hasNextLine()) {
@@ -25,7 +25,7 @@ fun main() {
     println("Part 2: ${solve(expand(galaxies, 1000000 - 1))}")
 }
 
-private fun solve(galaxies: List<Coords>): Long {
+private fun solve(galaxies: List<Coords<Int>>): Long {
     var totalDistance = 0L
     for (galaxy1 in galaxies) {
         for (galaxy2 in galaxies) {
@@ -40,7 +40,7 @@ private fun solve(galaxies: List<Coords>): Long {
     return totalDistance
 }
 
-fun expand(input: List<Coords>, byAdditional: Int = 1): List<Coords> {
+fun expand(input: List<Coords<Int>>, byAdditional: Int = 1): List<Coords<Int>> {
     val galaxies = input.map { Coords(it.row, it.col) }
 
     val galaxiesSortedByCol = galaxies.sortedBy { it.col }

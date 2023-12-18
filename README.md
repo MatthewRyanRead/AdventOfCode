@@ -9,7 +9,7 @@ possible!
 
 - Bash or compatible shell
 - Java 21
-- Kotlin (1.8 and 1.9 should work, maybe others)
+- Kotlin 1.9
 - Maven
 - Python 3, with extra packages:
     - `requests`

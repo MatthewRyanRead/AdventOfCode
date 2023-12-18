@@ -14,7 +14,7 @@ object Day17 {
 }
 
 data class Day17Key(
-    val coords: Coords = Coords(0, 0),
+    val coords: Coords<Int> = Coords(0, 0),
     var totalCost: Int = 0,
     val straightMoves: Int = 0,
     val lastDir: Direction? = null,
@@ -45,7 +45,7 @@ private fun solve(city: List<List<Int>>, minStraight: Int, maxStraight: Int): In
     // I originally just used a diagonal path as a max bound here, which was valid for P1 and just
     // happened to work for P2. Technically invalid for P2 though, and not needed, so just use max
     var bestSoFar = Day17Key(totalCost = Int.MAX_VALUE)
-    val bestForCoordsDirStep = mutableMapOf<Triple<Coords, Direction?, Int>, Int>()
+    val bestForCoordsDirStep = mutableMapOf<Triple<Coords<Int>, Direction?, Int>, Int>()
     val queue = PriorityQueue(setOf(Day17Key()))
 
     while (queue.isNotEmpty()) {

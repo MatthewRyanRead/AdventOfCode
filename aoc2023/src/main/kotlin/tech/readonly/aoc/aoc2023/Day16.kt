@@ -90,15 +90,15 @@ fun main() {
 
 private fun solve(
     cave: List<MutableList<Int>>,
-    startCoords: Coords,
+    startCoords: Coords<Int>,
     startBeam: CaveElem,
 ): Int {
-    val beamCoords = ArrayDeque<Coords>()
+    val beamCoords = ArrayDeque<Coords<Int>>()
     beamCoords.addLast(startCoords)
     val energized = mutableSetOf(startCoords)
     cave[startCoords.row][startCoords.col] = cave[startCoords.row][startCoords.col] or startBeam.v
 
-    val seen = mutableSetOf<Pair<Coords, String>>()
+    val seen = mutableSetOf<Pair<Coords<Int>, String>>()
 
     while (beamCoords.isNotEmpty()) {
         val coords = beamCoords.removeFirst()
@@ -155,10 +155,10 @@ private suspend fun part2(cave: List<MutableList<Int>>): Int {
 
 private fun move(
     cave: List<MutableList<Int>>,
-    coords: Coords,
+    coords: Coords<Int>,
     beam: CaveElem,
     elem: CaveElem,
-): List<Coords> {
+): List<Coords<Int>> {
     val beamDir = DIR_BY_BEAM[beam]!!
     val newDirs = DIRS_BY_DIR_AND_ELEM[Pair(beamDir, elem)]!!
 

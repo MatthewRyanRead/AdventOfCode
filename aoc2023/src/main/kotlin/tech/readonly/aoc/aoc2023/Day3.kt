@@ -21,9 +21,9 @@ fun main() {
     part2(board, numCoords, symbolCoords)
 }
 
-fun getNumCoords(board: List<String>): Pair<List<VertLine>, Set<Coords>> {
+fun getNumCoords(board: List<String>): Pair<List<VertLine>, Set<Coords<Int>>> {
     val lines = mutableListOf<VertLine>()
-    val symbolCoords = mutableSetOf<Coords>()
+    val symbolCoords = mutableSetOf<Coords<Int>>()
 
     board.forEachIndexed { y, row ->
         var x = 0
@@ -52,7 +52,7 @@ fun getNumCoords(board: List<String>): Pair<List<VertLine>, Set<Coords>> {
 fun part1(
     board: List<String>,
     lines: List<VertLine>,
-    symbolCoords: Set<Coords>,
+    symbolCoords: Set<Coords<Int>>,
 ) {
     val sum = lines.filter {
         for (y in (it.row - 1)..(it.row + 1)) {
@@ -73,13 +73,13 @@ fun part1(
 fun part2(
     board: List<String>,
     lines: List<VertLine>,
-    symbolCoords: Set<Coords>,
+    symbolCoords: Set<Coords<Int>>,
 ) {
     val numById = lines.withIndex().associateBy(
         { it.index },
         { board[it.value.row].substring(it.value.startCol, it.value.endCol + 1).toLong() },
     )
-    val numIdByCoord = mutableMapOf<Coords, Int>()
+    val numIdByCoord = mutableMapOf<Coords<Int>, Int>()
     lines.forEachIndexed { id, coord ->
         IntStream.rangeClosed(coord.startCol, coord.endCol).boxed().map { x -> Coords(coord.row, x) }
             .forEach { numIdByCoord[it] = id }
