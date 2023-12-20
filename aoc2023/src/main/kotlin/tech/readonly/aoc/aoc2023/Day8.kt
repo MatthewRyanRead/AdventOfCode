@@ -5,7 +5,7 @@ import java.util.Scanner
 import java.util.function.Predicate
 import kotlin.math.max
 
-data class Node(val id: String, val next: MutableList<Node>) {
+private data class Node(val id: String, val next: MutableList<Node>) {
     override fun toString(): String {
         return "Node(id='$id', next=${next.map { it.id }})"
     }
@@ -47,11 +47,11 @@ fun main() {
     part2(instructions, nodesById)
 }
 
-fun part1(instructions: String, nodesById: Map<String, Node> = mutableMapOf()) {
+private fun part1(instructions: String, nodesById: Map<String, Node> = mutableMapOf()) {
     println("Part 1: ${dist(instructions, nodesById, "AAA") { it == "ZZZ" }}")
 }
 
-fun part2(instructions: String, nodesById: Map<String, Node> = mutableMapOf()) {
+private fun part2(instructions: String, nodesById: Map<String, Node> = mutableMapOf()) {
     val dists = nodesById.keys.filter { it.endsWith('A') }
         .associateWith { k -> dist(instructions, nodesById, k) { it.endsWith('Z') }.toLong() }
 
@@ -73,7 +73,7 @@ fun part2(instructions: String, nodesById: Map<String, Node> = mutableMapOf()) {
     println("Part 2: $lcm")
 }
 
-fun dist(
+private fun dist(
     instructions: String,
     nodesById: Map<String, Node> = mutableMapOf(),
     start: String,

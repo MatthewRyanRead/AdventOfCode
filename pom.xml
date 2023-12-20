@@ -40,6 +40,7 @@
         <!-- dependency versions -->
         <jsr305.version>3.0.2</jsr305.version>
         <maven-jdk-tools-wrapper.version>0.1</maven-jdk-tools-wrapper.version>
+        <z3.version>4.12.2.1</z3.version>
     </properties>
 
     <dependencyManagement>
@@ -67,6 +68,11 @@
                 <version>${kotlinx.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>tools.aqua</groupId>
+                <artifactId>z3-turnkey</artifactId>
+                <version>${z3.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
