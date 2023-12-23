@@ -50,7 +50,7 @@ fun main() {
 
 private fun solve(instructions: List<Instruction>): Long {
     val longTranslationByDir = TRANSLATION_BY_DIR.entries.associate { e ->
-        e.key to Coords(e.value.row.toLong(), e.value.col.toLong())
+        e.key to Coords(e.value.first.toLong(), e.value.second.toLong())
     }
     var currCoords = Coords(0L, 0L)
     var shoelaceSum = 0.0
@@ -58,7 +58,7 @@ private fun solve(instructions: List<Instruction>): Long {
     instructions.forEach { instr ->
         val newCoords = currCoords + (longTranslationByDir[instr.dir]!! * instr.steps)
         shoelaceSum =
-            shoelaceSum + (currCoords.row * newCoords.col) - (currCoords.col * newCoords.row)
+            shoelaceSum + (currCoords.first * newCoords.second) - (currCoords.second * newCoords.first)
         boundingPoints += instr.steps
         currCoords = newCoords
     }

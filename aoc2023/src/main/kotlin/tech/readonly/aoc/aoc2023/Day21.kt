@@ -37,7 +37,7 @@ private fun solve(grid: List<CharArray>, startCoords: Coords<Int>, numIters: Int
         while (toVisit.isNotEmpty()) {
             val coords = toVisit.first()
             toVisit.remove(coords)
-            grid[coords.row][coords.col] = (i % 10).toString()[0]
+            grid[coords.first][coords.second] = (i % 10).toString()[0]
             visited.add(coords)
             nextToVisit.addAll(getNeighbours(grid, coords).filter { !visited.contains(it) })
         }
@@ -83,11 +83,11 @@ private fun part2(grid: List<CharArray>, startCoords: Coords<Int>): Long {
 
 private fun getNeighbours(grid: List<CharArray>, coords: Coords<Int>): List<Coords<Int>> {
     return listOf(
-        Coords(coords.row - 1, coords.col),
-        Coords(coords.row + 1, coords.col),
-        Coords(coords.row, coords.col - 1),
-        Coords(coords.row, coords.col + 1)
-    ).filter { it.row in grid.indices && it.col in grid[0].indices && grid[it.row][it.col] == '.' }
+        Coords(coords.first - 1, coords.second),
+        Coords(coords.first + 1, coords.second),
+        Coords(coords.first, coords.second - 1),
+        Coords(coords.first, coords.second + 1)
+    ).filter { it.arrInbounds(grid) && grid[it.first][it.second] == '.' }
 }
 
 private fun duplicateGrid(grid: List<CharArray>, numTimes: Int = 0): List<CharArray> {

@@ -87,13 +87,13 @@ fun part2(
 
     var ratioSum = 0L
     for (symbolCoord in symbolCoords) {
-        if (board[symbolCoord.row][symbolCoord.col] != '*') {
+        if (board[symbolCoord.first][symbolCoord.second] != '*') {
             continue
         }
 
         val nearbyNumIds = mutableSetOf<Int>()
-        for (y in (symbolCoord.row - 1)..(symbolCoord.row + 1)) {
-            for (x in (symbolCoord.col - 1)..(symbolCoord.col + 1)) {
+        for (y in (symbolCoord.first - 1)..(symbolCoord.first + 1)) {
+            for (x in (symbolCoord.second - 1)..(symbolCoord.second + 1)) {
                 val nearbyCoord = Coords(y, x)
                 if (nearbyCoord in numIdByCoord.keys) {
                     nearbyNumIds.add(numIdByCoord[nearbyCoord]!!)

@@ -69,7 +69,7 @@ private fun solve(city: List<List<Int>>, minStraight: Int, maxStraight: Int): In
         } else {
             queue.addAll(getNeighbourCosts(city, key, minStraight, maxStraight).filter {
                 // don't bother if we can definitely do better
-                it.totalCost <= 9 * (it.coords.row + it.coords.col)
+                it.totalCost <= 9 * (it.coords.first + it.coords.second)
                         && it.heuristicCost() < bestSoFar.totalCost
             })
         }
@@ -97,6 +97,6 @@ private fun getNeighbourCosts(
                 && OPPOSITE_BY_DIR[it.lastDir]!! != key.lastDir
                 && it.coords.inbounds(city)
     }.onEach {
-        it.totalCost = key.totalCost + city[it.coords.row][it.coords.col]
+        it.totalCost = key.totalCost + city[it.coords.first][it.coords.second]
     }
 }

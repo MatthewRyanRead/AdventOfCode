@@ -41,32 +41,32 @@ private fun solve(galaxies: List<Coords<Int>>): Long {
 }
 
 fun expand(input: List<Coords<Int>>, byAdditional: Int = 1): List<Coords<Int>> {
-    val galaxies = input.map { Coords(it.row, it.col) }
+    val galaxies = input.map { Coords(it.first, it.second) }
 
-    val galaxiesSortedByCol = galaxies.sortedBy { it.col }
+    val galaxiesSortedByCol = galaxies.sortedBy { it.second }
     val colOffsets = mutableListOf(0)
     for (x in 1..<galaxiesSortedByCol.size) {
         val next = galaxiesSortedByCol[x]
         val prev = galaxiesSortedByCol[x - 1]
-        colOffsets.add(max(0, next.col - prev.col - 1) * byAdditional)
+        colOffsets.add(max(0, next.second - prev.second - 1) * byAdditional)
     }
     var totalColOffset = 0
     for (col in 1..<galaxiesSortedByCol.size) {
         totalColOffset += colOffsets[col]
-        galaxiesSortedByCol[col].col += totalColOffset
+        galaxiesSortedByCol[col].second += totalColOffset
     }
 
-    val galaxiesSortedByRow = galaxies.sortedBy { it.row }
+    val galaxiesSortedByRow = galaxies.sortedBy { it.first }
     val rowOffsets = mutableListOf(0)
     for (row in 1..<galaxiesSortedByRow.size) {
         val next = galaxiesSortedByRow[row]
         val prev = galaxiesSortedByRow[row - 1]
-        rowOffsets.add(max(0, next.row - prev.row - 1) * byAdditional)
+        rowOffsets.add(max(0, next.first - prev.first - 1) * byAdditional)
     }
     var totalRowOffset = 0
     for (row in 1..<galaxiesSortedByRow.size) {
         totalRowOffset += rowOffsets[row]
-        galaxiesSortedByRow[row].row += totalRowOffset
+        galaxiesSortedByRow[row].first += totalRowOffset
     }
 
     return galaxies

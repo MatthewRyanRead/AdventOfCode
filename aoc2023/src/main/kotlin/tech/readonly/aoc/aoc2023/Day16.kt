@@ -96,7 +96,7 @@ private fun solve(
     val beamCoords = ArrayDeque<Coords<Int>>()
     beamCoords.addLast(startCoords)
     val energized = mutableSetOf(startCoords)
-    cave[startCoords.row][startCoords.col] = cave[startCoords.row][startCoords.col] or startBeam.v
+    cave[startCoords.first][startCoords.second] = cave[startCoords.first][startCoords.second] or startBeam.v
 
     val seen = mutableSetOf<Pair<Coords<Int>, String>>()
 
@@ -108,7 +108,7 @@ private fun solve(
         }
         seen.add(Pair(coords, str))
 
-        val spot = cave[coords.row][coords.col]
+        val spot = cave[coords.first][coords.second]
         val beams = BEAMS.filter { spot and it.v == it.v }
         if (beams.isEmpty()) {
             error("No beams found at $coords")
@@ -166,13 +166,13 @@ private fun move(
         val translation = TRANSLATION_BY_DIR[dir]!!
         val newCoords = coords + translation
         if (newCoords.inbounds(cave)) {
-            val newSpot = cave[newCoords.row][newCoords.col]
+            val newSpot = cave[newCoords.first][newCoords.second]
             val newBeam = BEAM_BY_DIR[dir]!!.v
 
             if (newSpot and newBeam == newBeam) {
                 null
             } else {
-                cave[newCoords.row][newCoords.col] = newSpot or newBeam
+                cave[newCoords.first][newCoords.second] = newSpot or newBeam
                 newCoords
             }
         } else {
