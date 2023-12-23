@@ -11,11 +11,11 @@ fun main() {
         }
     }
 
-    println("Part 1: ${solve(input, false)}")
-    println("Part 2: ${solve(input, true)}")
+    println("Part 1: ${day9Solve(input, false)}")
+    println("Part 2: ${day9Solve(input, true)}")
 }
 
-fun solve(input: List<List<Long>>, isPart2: Boolean): Long {
+fun day9Solve(input: List<List<Long>>, isPart2: Boolean): Long {
     val answers = mutableListOf<Long>()
     for (reading in input) {
         val differences = mutableListOf<List<Long>>()

@@ -1,10 +1,10 @@
 package tech.readonly.aoc.aoc2023.util
 
-enum class Direction(v: Int) {
-    NORTH(0),
-    EAST(1),
-    SOUTH(2),
-    WEST(4),
+enum class Direction {
+    NORTH,
+    EAST,
+    SOUTH,
+    WEST,
     ;
 
     companion object Constants {
@@ -21,7 +21,5 @@ enum class Direction(v: Int) {
             Pair(SOUTH, Coords(1, 0)),
             Pair(WEST, Coords(0, -1)),
         )
-
-        val DIR_BY_TRANSLATION = TRANSLATION_BY_DIR.map { (k, v) -> v to k }.toMap()
     }
 }
