@@ -13,6 +13,9 @@ class Coords<T>(vararg var points: T) : Comparable<Coords<T>> where T : Number {
     var second
         get() = points[1]
         set(value) = setAt(1, value)
+    var third
+        get() = points[2]
+        set(value) = setAt(2, value)
 
     private fun setAt(index: Int, value: T) {
         pts[index] = value
