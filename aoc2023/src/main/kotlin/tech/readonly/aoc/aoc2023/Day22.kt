@@ -11,7 +11,7 @@ private data class Brick(val id: Int, val start: Coords<Int>, val end: Coords<In
     val allCoords = sequence {
         for (x in start.first..end.first) {
             for (y in start.second..end.second) {
-                for (z in start.points[2]..end.points[2]) {
+                for (z in start[2]..end[2]) {
                     yield(Coords(x, y, z))
                 }
             }

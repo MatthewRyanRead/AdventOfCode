@@ -82,12 +82,7 @@ private fun part2(grid: List<CharArray>, startCoords: Coords<Int>): Long {
 }
 
 private fun getNeighbours(grid: List<CharArray>, coords: Coords<Int>): List<Coords<Int>> {
-    return listOf(
-        Coords(coords.first - 1, coords.second),
-        Coords(coords.first + 1, coords.second),
-        Coords(coords.first, coords.second - 1),
-        Coords(coords.first, coords.second + 1)
-    ).filter { it.arrInbounds(grid) && grid[it.first][it.second] == '.' }
+    return coords.neighbours().filter { it.arrInbounds(grid) && grid[it.first][it.second] == '.' }
 }
 
 private fun duplicateGrid(grid: List<CharArray>, numTimes: Int = 0): List<CharArray> {

@@ -30,7 +30,7 @@ class Coords<T>(vararg var points: T) : Comparable<Coords<T>> where T : Number {
 
         for (i in points.indices) {
             val p1 = points[i].toDouble()
-            val p2 = other.points[i].toDouble()
+            val p2 = other[i].toDouble()
             if (p1 < p2) {
                 return -1
             } else if (p1 > p2) {
@@ -73,6 +73,10 @@ class Coords<T>(vararg var points: T) : Comparable<Coords<T>> where T : Number {
 
     // region operators
 
+    operator fun get(index: Int): T {
+        return pts[index]
+    }
+
     operator fun plus(other: Coords<T>): Coords<T> {
         if (first::class != other.first::class || points.size != other.points.size) {
             error("Cannot add coordinates of different type or dimension: $this, $other")
@@ -80,37 +84,37 @@ class Coords<T>(vararg var points: T) : Comparable<Coords<T>> where T : Number {
 
         return when (first::class) {
             Double::class -> {
-                val arr = points.mapIndexed { i, v -> v.toDouble() + other.points[i].toDouble() }
+                val arr = points.mapIndexed { i, v -> v.toDouble() + other[i].toDouble() }
                     .toTypedArray()
                 Coords(*arr) as Coords<T>
             }
 
             Float::class -> {
-                val arr = points.mapIndexed { i, v -> v.toFloat() + other.points[i].toFloat() }
+                val arr = points.mapIndexed { i, v -> v.toFloat() + other[i].toFloat() }
                     .toTypedArray()
                 Coords(*arr) as Coords<T>
             }
 
             Long::class -> {
-                val arr = points.mapIndexed { i, v -> v.toLong() + other.points[i].toLong() }
+                val arr = points.mapIndexed { i, v -> v.toLong() + other[i].toLong() }
                     .toTypedArray()
                 Coords(*arr) as Coords<T>
             }
 
             Int::class -> {
-                val arr = points.mapIndexed { i, v -> v.toInt() + other.points[i].toInt() }
+                val arr = points.mapIndexed { i, v -> v.toInt() + other[i].toInt() }
                     .toTypedArray()
                 Coords(*arr) as Coords<T>
             }
 
             Short::class -> {
-                val arr = points.mapIndexed { i, v -> v.toShort() + other.points[i].toShort() }
+                val arr = points.mapIndexed { i, v -> v.toShort() + other[i].toShort() }
                     .toTypedArray()
                 Coords(*arr) as Coords<T>
             }
 
             Byte::class -> {
-                val arr = points.mapIndexed { i, v -> v.toByte() + other.points[i].toByte() }
+                val arr = points.mapIndexed { i, v -> v.toByte() + other[i].toByte() }
                     .toTypedArray()
                 Coords(*arr) as Coords<T>
             }
@@ -222,6 +226,45 @@ class Coords<T>(vararg var points: T) : Comparable<Coords<T>> where T : Number {
         }
 
         return first.toInt() in grid.indices && second.toInt() in grid[0].indices
+    }
+
+    fun neighbours(): List<Coords<T>> {
+        var newCoords: Coords<T>
+        return sequence {
+            for (dimension in pts.indices) {
+                newCoords = Coords(*pts.clone())
+                newCoords.setAt(dimension, (pts[dimension] - 1) as T)
+                yield(newCoords)
+
+                newCoords = Coords(*pts.clone())
+                newCoords.setAt(dimension, (pts[dimension] + 1) as T)
+                yield(newCoords)
+            }
+        }.toList()
+    }
+
+    operator fun Number.plus(other: Number): Number {
+        return when (this::class) {
+            Double::class -> this as Double + other.toDouble()
+            Float::class -> this as Float + other.toFloat()
+            Long::class -> this as Long + other.toLong()
+            Int::class -> this as Int + other.toInt()
+            Short::class -> this as Short + other.toShort()
+            Byte::class -> this as Byte + other.toByte()
+            else -> error("Unknown/unsupported Number subtype: ${this::class}")
+        }
+    }
+
+    operator fun Number.minus(other: Number): Number {
+        return when (this::class) {
+            Double::class -> this as Double - other.toDouble()
+            Float::class -> this as Float - other.toFloat()
+            Long::class -> this as Long - other.toLong()
+            Int::class -> this as Int - other.toInt()
+            Short::class -> this as Short - other.toShort()
+            Byte::class -> this as Byte - other.toByte()
+            else -> error("Unknown/unsupported Number subtype: ${this::class}")
+        }
     }
 
     // endregion helpers
