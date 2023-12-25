@@ -123,45 +123,45 @@ class Coords<T>(vararg var points: T) : Comparable<Coords<T>> where T : Number {
         }
     }
 
-    inline operator fun <reified T> times(multiplier: T): Coords<T> where T : Number {
-        return when (T::class) {
+    inline operator fun <reified U> times(multiplier: U): Coords<U> where U : Number {
+        return when (U::class) {
             Double::class -> {
-                val arr = points.map { v -> v.toDouble() * multiplier.toDouble() }
+                val arr = points.map { v -> v.toDouble() * (multiplier as Double) }
                     .toTypedArray()
-                Coords(*arr) as Coords<T>
+                Coords(*arr) as Coords<U>
             }
 
             Float::class -> {
-                val arr = points.map { v -> v.toFloat() * multiplier.toFloat() }
+                val arr = points.map { v -> v.toFloat() * (multiplier as Float) }
                     .toTypedArray()
-                Coords(*arr) as Coords<T>
+                Coords(*arr) as Coords<U>
             }
 
             Long::class -> {
-                val arr = points.map { v -> v.toLong() * multiplier.toLong() }
+                val arr = points.map { v -> v.toLong() * (multiplier as Long) }
                     .toTypedArray()
-                Coords(*arr) as Coords<T>
+                Coords(*arr) as Coords<U>
             }
 
             Int::class -> {
-                val arr = points.map { v -> v.toInt() * multiplier.toInt() }
+                val arr = points.map { v -> v.toInt() * (multiplier as Int) }
                     .toTypedArray()
-                Coords(*arr) as Coords<T>
+                Coords(*arr) as Coords<U>
             }
 
             Short::class -> {
-                val arr = points.map { v -> v.toShort() * multiplier.toShort() }
+                val arr = points.map { v -> v.toShort() * (multiplier as Short) }
                     .toTypedArray()
-                Coords(*arr) as Coords<T>
+                Coords(*arr) as Coords<U>
             }
 
             Byte::class -> {
-                val arr = points.map { v -> v.toByte() * multiplier.toByte() }
+                val arr = points.map { v -> v.toByte() * (multiplier as Byte) }
                     .toTypedArray()
-                Coords(*arr) as Coords<T>
+                Coords(*arr) as Coords<U>
             }
 
-            else -> error("Unknown/unsupported Number subtype: ${first::class}")
+            else -> error("Unknown/unsupported Number subtype: ${U::class}")
         }
     }
 

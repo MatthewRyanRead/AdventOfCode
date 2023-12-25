@@ -13,11 +13,11 @@ import tech.readonly.aoc.aoc2023.util.Direction.WEST
 import java.io.File
 import java.util.Scanner
 
-data class Edge(val start: Coords<Int>, val end: Coords<Int>, val cost: Int)
+private data class Edge(val start: Coords<Int>, val end: Coords<Int>, val cost: Int)
 
-data class State(val coords: Coords<Int>, val path: Set<Coords<Int>>, val steps: Int)
+private data class State(val coords: Coords<Int>, val path: Set<Coords<Int>>, val steps: Int)
 
-object Day23 {
+private object Day23 {
     var GRID = emptyList<CharArray>()
     val START_COORDS = Coords(0, 1)
     var END_COORDS = START_COORDS
