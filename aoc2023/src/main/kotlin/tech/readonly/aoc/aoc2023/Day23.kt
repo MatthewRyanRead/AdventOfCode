@@ -13,7 +13,7 @@ import tech.readonly.aoc.aoc2023.util.Direction.WEST
 import java.io.File
 import java.util.Scanner
 
-private data class Edge(val start: Coords<Int>, val end: Coords<Int>, val cost: Int)
+internal data class Edge(val start: Coords<Int>, val end: Coords<Int>, val cost: Int)
 
 private data class State(val coords: Coords<Int>, val path: Set<Coords<Int>>, val steps: Int)
 
