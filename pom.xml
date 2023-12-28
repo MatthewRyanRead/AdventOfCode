@@ -9,6 +9,7 @@
     <version>1.0.0</version>
 
     <modules>
+        <module>aoc2020</module>
         <module>aoc2021</module>
         <module>aoc2022</module>
         <module>aoc2023</module>
