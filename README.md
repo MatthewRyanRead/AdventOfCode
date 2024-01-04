@@ -16,4 +16,4 @@ possible!
     - `z3-solver`
 
 I use a different primary language for all years, so not everything is required for all modules.
-I do try to solve the first problem of the year in Bash, though.
+I usually try to solve the first problem of the year in Bash, though.
