@@ -1,5 +1,3 @@
-using Multibreak
-
 lines = split(read("../resources/inputs/Day8.txt", String), '\n')
 
 commands = Vector{Pair{String, Int}}()
