@@ -1,0 +1,54 @@
+# This file is machine-generated - editing it directly is not advised
+
+[[Base64]]
+uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[Combinatorics]]
+git-tree-sha1 = "08c8b6831dc00bfea825826be0bc8336fc369860"
+uuid = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
+version = "1.0.2"
+
+[[GeneralizedCRT]]
+deps = ["Primes"]
+git-tree-sha1 = "c95f1d3847b08cd9c76e808f5aaf74a11477d508"
+uuid = "7208565e-50fc-4253-9db2-a2925814c645"
+version = "0.1.0"
+
+[[IntegerMathUtils]]
+git-tree-sha1 = "b8ffb903da9f7b8cf695a8bead8e01814aa24b30"
+uuid = "18e54dd8-cb9d-406c-a71d-865a43cbb235"
+version = "0.1.2"
+
+[[MacroTools]]
+deps = ["Markdown", "Random"]
+git-tree-sha1 = "b211c553c199c111d998ecdaf7623d1b89b69f93"
+uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+version = "0.5.12"
+
+[[Markdown]]
+deps = ["Base64"]
+uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+
+[[Memoization]]
+deps = ["MacroTools"]
+git-tree-sha1 = "073f080e733bc6697411901224ed4fd15fefaffa"
+uuid = "6fafb56a-5788-4b4e-91ca-c0cea6611c73"
+version = "0.2.1"
+
+[[Multibreak]]
+git-tree-sha1 = "b5eab136922c0f06114e956618a86b80b5899fe7"
+uuid = "2db7fbaf-c681-4fb2-9fc5-9b884bdd742d"
+version = "0.2.0"
+
+[[Primes]]
+deps = ["IntegerMathUtils"]
+git-tree-sha1 = "1d05623b5952aed1307bf8b43bec8b8d1ef94b6e"
+uuid = "27ebfcd6-29c5-5fa9-bf4b-fb8fc14df3ae"
+version = "0.5.5"
+
+[[Random]]
+deps = ["Serialization"]
+uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
+[[Serialization]]
+uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
