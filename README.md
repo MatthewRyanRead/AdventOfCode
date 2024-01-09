@@ -14,6 +14,7 @@ possible!
     - `GeneralizedCRT`
     - `Memoization`
     - `Multibreak`
+    - `PyCall`
 - Kotlin 1.9
 - Maven (handles Java & Kotlin dependencies)
 - Python 3 (tested 3.7 & 3.11), with extra packages:
